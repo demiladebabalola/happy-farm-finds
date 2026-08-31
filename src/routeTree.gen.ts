@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BrowseRouteImport } from './routes/browse'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as DashboardCustomerRouteImport } from './routes/dashboard.customer'
 import { Route as NegotiateProductIdRouteImport } from './routes/negotiate.$productId'
 import { Route as ProductProductIdRouteImport } from './routes/product.$productId'
 
@@ -30,6 +31,11 @@ const RegisterRoute = RegisterRouteImport.update({
   path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardCustomerRoute = DashboardCustomerRouteImport.update({
+  id: '/dashboard/customer',
+  path: '/dashboard/customer',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NegotiateProductIdRoute = NegotiateProductIdRouteImport.update({
   id: '/negotiate/$productId',
   path: '/negotiate/$productId',
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/browse': typeof BrowseRoute
   '/register': typeof RegisterRoute
+  '/dashboard/customer': typeof DashboardCustomerRoute
   '/negotiate/$productId': typeof NegotiateProductIdRoute
   '/product/$productId': typeof ProductProductIdRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/browse': typeof BrowseRoute
   '/register': typeof RegisterRoute
+  '/dashboard/customer': typeof DashboardCustomerRoute
   '/negotiate/$productId': typeof NegotiateProductIdRoute
   '/product/$productId': typeof ProductProductIdRoute
 }
@@ -60,6 +68,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/browse': typeof BrowseRoute
   '/register': typeof RegisterRoute
+  '/dashboard/customer': typeof DashboardCustomerRoute
   '/negotiate/$productId': typeof NegotiateProductIdRoute
   '/product/$productId': typeof ProductProductIdRoute
 }
@@ -69,6 +78,7 @@ export interface FileRouteTypes {
     | '/'
     | '/browse'
     | '/register'
+    | '/dashboard/customer'
     | '/negotiate/$productId'
     | '/product/$productId'
   fileRoutesByTo: FileRoutesByTo
@@ -76,6 +86,7 @@ export interface FileRouteTypes {
     | '/'
     | '/browse'
     | '/register'
+    | '/dashboard/customer'
     | '/negotiate/$productId'
     | '/product/$productId'
   id:
@@ -83,6 +94,7 @@ export interface FileRouteTypes {
     | '/'
     | '/browse'
     | '/register'
+    | '/dashboard/customer'
     | '/negotiate/$productId'
     | '/product/$productId'
   fileRoutesById: FileRoutesById
@@ -91,6 +103,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BrowseRoute: typeof BrowseRoute
   RegisterRoute: typeof RegisterRoute
+  DashboardCustomerRoute: typeof DashboardCustomerRoute
   NegotiateProductIdRoute: typeof NegotiateProductIdRoute
   ProductProductIdRoute: typeof ProductProductIdRoute
 }
@@ -118,6 +131,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/customer': {
+      id: '/dashboard/customer'
+      path: '/dashboard/customer'
+      fullPath: '/dashboard/customer'
+      preLoaderRoute: typeof DashboardCustomerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/negotiate/$productId': {
       id: '/negotiate/$productId'
       path: '/negotiate/$productId'
@@ -139,6 +159,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BrowseRoute: BrowseRoute,
   RegisterRoute: RegisterRoute,
+  DashboardCustomerRoute: DashboardCustomerRoute,
   NegotiateProductIdRoute: NegotiateProductIdRoute,
   ProductProductIdRoute: ProductProductIdRoute,
 }
