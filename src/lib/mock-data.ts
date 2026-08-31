@@ -1,4 +1,5 @@
 import { IMG } from "./images";
+import uguAsset from "@/assets/ugu-leaves.png.asset.json";
 
 export type Product = {
   id: string;
@@ -135,8 +136,8 @@ export const products: Product[] = [
     farmer: "Green Valley Farm",
     farmerAvatar: IMG.s5_9,
     location: "Nyanya, Abuja",
-    image: IMG.s5_8,
-    gallery: [IMG.s5_8, IMG.s5_2, IMG.s3_2],
+    image: uguAsset.url,
+    gallery: [uguAsset.url, IMG.s5_2, IMG.s3_2],
     rating: 4.7,
     reviews: 88,
     stock: "60 bundles available",
