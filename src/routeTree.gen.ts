@@ -10,33 +10,115 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BrowseRouteImport } from './routes/browse'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as DashboardCustomerRouteImport } from './routes/dashboard.customer'
+import { Route as DashboardFarmerRouteImport } from './routes/dashboard.farmer'
+import { Route as NegotiateProductIdRouteImport } from './routes/negotiate.$productId'
+import { Route as ProductProductIdRouteImport } from './routes/product.$productId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BrowseRoute = BrowseRouteImport.update({
+  id: '/browse',
+  path: '/browse',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardCustomerRoute = DashboardCustomerRouteImport.update({
+  id: '/dashboard/customer',
+  path: '/dashboard/customer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardFarmerRoute = DashboardFarmerRouteImport.update({
+  id: '/dashboard/farmer',
+  path: '/dashboard/farmer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NegotiateProductIdRoute = NegotiateProductIdRouteImport.update({
+  id: '/negotiate/$productId',
+  path: '/negotiate/$productId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductProductIdRoute = ProductProductIdRouteImport.update({
+  id: '/product/$productId',
+  path: '/product/$productId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/browse': typeof BrowseRoute
+  '/register': typeof RegisterRoute
+  '/dashboard/customer': typeof DashboardCustomerRoute
+  '/dashboard/farmer': typeof DashboardFarmerRoute
+  '/negotiate/$productId': typeof NegotiateProductIdRoute
+  '/product/$productId': typeof ProductProductIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/browse': typeof BrowseRoute
+  '/register': typeof RegisterRoute
+  '/dashboard/customer': typeof DashboardCustomerRoute
+  '/dashboard/farmer': typeof DashboardFarmerRoute
+  '/negotiate/$productId': typeof NegotiateProductIdRoute
+  '/product/$productId': typeof ProductProductIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/browse': typeof BrowseRoute
+  '/register': typeof RegisterRoute
+  '/dashboard/customer': typeof DashboardCustomerRoute
+  '/dashboard/farmer': typeof DashboardFarmerRoute
+  '/negotiate/$productId': typeof NegotiateProductIdRoute
+  '/product/$productId': typeof ProductProductIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/browse'
+    | '/register'
+    | '/dashboard/customer'
+    | '/dashboard/farmer'
+    | '/negotiate/$productId'
+    | '/product/$productId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/browse'
+    | '/register'
+    | '/dashboard/customer'
+    | '/dashboard/farmer'
+    | '/negotiate/$productId'
+    | '/product/$productId'
+  id:
+    | '__root__'
+    | '/'
+    | '/browse'
+    | '/register'
+    | '/dashboard/customer'
+    | '/dashboard/farmer'
+    | '/negotiate/$productId'
+    | '/product/$productId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BrowseRoute: typeof BrowseRoute
+  RegisterRoute: typeof RegisterRoute
+  DashboardCustomerRoute: typeof DashboardCustomerRoute
+  DashboardFarmerRoute: typeof DashboardFarmerRoute
+  NegotiateProductIdRoute: typeof NegotiateProductIdRoute
+  ProductProductIdRoute: typeof ProductProductIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +130,59 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/browse': {
+      id: '/browse'
+      path: '/browse'
+      fullPath: '/browse'
+      preLoaderRoute: typeof BrowseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/customer': {
+      id: '/dashboard/customer'
+      path: '/dashboard/customer'
+      fullPath: '/dashboard/customer'
+      preLoaderRoute: typeof DashboardCustomerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/farmer': {
+      id: '/dashboard/farmer'
+      path: '/dashboard/farmer'
+      fullPath: '/dashboard/farmer'
+      preLoaderRoute: typeof DashboardFarmerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/negotiate/$productId': {
+      id: '/negotiate/$productId'
+      path: '/negotiate/$productId'
+      fullPath: '/negotiate/$productId'
+      preLoaderRoute: typeof NegotiateProductIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/product/$productId': {
+      id: '/product/$productId'
+      path: '/product/$productId'
+      fullPath: '/product/$productId'
+      preLoaderRoute: typeof ProductProductIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BrowseRoute: BrowseRoute,
+  RegisterRoute: RegisterRoute,
+  DashboardCustomerRoute: DashboardCustomerRoute,
+  DashboardFarmerRoute: DashboardFarmerRoute,
+  NegotiateProductIdRoute: NegotiateProductIdRoute,
+  ProductProductIdRoute: ProductProductIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
