@@ -1,6 +1,7 @@
 import { IMG } from "./images";
 import uguAsset from "@/assets/ugu-leaves.png.asset.json";
 import yamTubersAsset from "@/assets/yam-tubers.png.asset.json";
+import honeyAsset from "@/assets/honey-bottle.png.asset.json";
 
 
 export type Product = {
@@ -172,7 +173,7 @@ export const categories = [
   { label: "Agbalumo", image: IMG.s5_3 },
   { label: "Oils", image: IMG.s5_4 },
   { label: "Tubers", image: yamTubersAsset.url },
-  { label: "Pantry", image: IMG.s5_6 },
+  { label: "Pantry", image: honeyAsset.url },
   { label: "Specials", image: IMG.s5_7 },
 ];
 
