@@ -1,5 +1,7 @@
 import { IMG } from "./images";
 import uguAsset from "@/assets/ugu-leaves.png.asset.json";
+import yamTubersAsset from "@/assets/yam-tubers.png.asset.json";
+
 
 export type Product = {
   id: string;
