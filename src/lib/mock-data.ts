@@ -172,9 +172,10 @@ export const categories = [
   { label: "Agbalumo", image: IMG.s5_3 },
   { label: "Oils", image: IMG.s5_4 },
   { label: "Tubers", image: IMG.s5_5 },
-  { label: "Pantry", image: IMG.s5_6 },
+  { label: "Pantry", image: yamTubersAsset.url },
   { label: "Specials", image: IMG.s5_7 },
 ];
+
 
 export const browseFilters = [
   "All Produce",
