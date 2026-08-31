@@ -171,8 +171,8 @@ export const categories = [
   { label: "Ugu Leaves", image: IMG.s5_2 },
   { label: "Agbalumo", image: IMG.s5_3 },
   { label: "Oils", image: IMG.s5_4 },
-  { label: "Tubers", image: IMG.s5_5 },
-  { label: "Pantry", image: yamTubersAsset.url },
+  { label: "Tubers", image: yamTubersAsset.url },
+  { label: "Pantry", image: IMG.s5_6 },
   { label: "Specials", image: IMG.s5_7 },
 ];
 
