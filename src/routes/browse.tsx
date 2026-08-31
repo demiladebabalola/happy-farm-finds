@@ -91,13 +91,14 @@ function BrowsePage() {
         <section className="relative overflow-hidden rounded-3xl">
           <img src={IMG.s5_12} alt="Today's harvest" className="w-full h-40 md:h-56 object-cover" />
           <div className="absolute inset-0 hero-gradient" />
-          <div className="absolute bottom-0 left-0 p-md">
+          <div className="absolute bottom-0 left-0 right-0 p-margin-mobile md:p-md">
             <p className="font-label-sm text-label-sm text-white/80 uppercase">Today at the farm gate</p>
-            <h1 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-white">
+            <h1 className="font-headline-md text-headline-md-mobile md:text-headline-lg text-white">
               Fresh from {products.length} local harvests
             </h1>
           </div>
         </section>
+
 
         <section>
           <h2 className="font-headline-md text-headline-md-mobile mb-sm">Categories</h2>
