@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as BrowseRouteImport } from './routes/browse'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as DashboardCustomerRouteImport } from './routes/dashboard.customer'
+import { Route as DashboardFarmerRouteImport } from './routes/dashboard.farmer'
 import { Route as NegotiateProductIdRouteImport } from './routes/negotiate.$productId'
 import { Route as ProductProductIdRouteImport } from './routes/product.$productId'
 
@@ -36,6 +37,11 @@ const DashboardCustomerRoute = DashboardCustomerRouteImport.update({
   path: '/dashboard/customer',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardFarmerRoute = DashboardFarmerRouteImport.update({
+  id: '/dashboard/farmer',
+  path: '/dashboard/farmer',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NegotiateProductIdRoute = NegotiateProductIdRouteImport.update({
   id: '/negotiate/$productId',
   path: '/negotiate/$productId',
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/browse': typeof BrowseRoute
   '/register': typeof RegisterRoute
   '/dashboard/customer': typeof DashboardCustomerRoute
+  '/dashboard/farmer': typeof DashboardFarmerRoute
   '/negotiate/$productId': typeof NegotiateProductIdRoute
   '/product/$productId': typeof ProductProductIdRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/browse': typeof BrowseRoute
   '/register': typeof RegisterRoute
   '/dashboard/customer': typeof DashboardCustomerRoute
+  '/dashboard/farmer': typeof DashboardFarmerRoute
   '/negotiate/$productId': typeof NegotiateProductIdRoute
   '/product/$productId': typeof ProductProductIdRoute
 }
@@ -69,6 +77,7 @@ export interface FileRoutesById {
   '/browse': typeof BrowseRoute
   '/register': typeof RegisterRoute
   '/dashboard/customer': typeof DashboardCustomerRoute
+  '/dashboard/farmer': typeof DashboardFarmerRoute
   '/negotiate/$productId': typeof NegotiateProductIdRoute
   '/product/$productId': typeof ProductProductIdRoute
 }
@@ -79,6 +88,7 @@ export interface FileRouteTypes {
     | '/browse'
     | '/register'
     | '/dashboard/customer'
+    | '/dashboard/farmer'
     | '/negotiate/$productId'
     | '/product/$productId'
   fileRoutesByTo: FileRoutesByTo
@@ -87,6 +97,7 @@ export interface FileRouteTypes {
     | '/browse'
     | '/register'
     | '/dashboard/customer'
+    | '/dashboard/farmer'
     | '/negotiate/$productId'
     | '/product/$productId'
   id:
@@ -95,6 +106,7 @@ export interface FileRouteTypes {
     | '/browse'
     | '/register'
     | '/dashboard/customer'
+    | '/dashboard/farmer'
     | '/negotiate/$productId'
     | '/product/$productId'
   fileRoutesById: FileRoutesById
@@ -104,6 +116,7 @@ export interface RootRouteChildren {
   BrowseRoute: typeof BrowseRoute
   RegisterRoute: typeof RegisterRoute
   DashboardCustomerRoute: typeof DashboardCustomerRoute
+  DashboardFarmerRoute: typeof DashboardFarmerRoute
   NegotiateProductIdRoute: typeof NegotiateProductIdRoute
   ProductProductIdRoute: typeof ProductProductIdRoute
 }
@@ -138,6 +151,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardCustomerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/farmer': {
+      id: '/dashboard/farmer'
+      path: '/dashboard/farmer'
+      fullPath: '/dashboard/farmer'
+      preLoaderRoute: typeof DashboardFarmerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/negotiate/$productId': {
       id: '/negotiate/$productId'
       path: '/negotiate/$productId'
@@ -160,6 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   BrowseRoute: BrowseRoute,
   RegisterRoute: RegisterRoute,
   DashboardCustomerRoute: DashboardCustomerRoute,
+  DashboardFarmerRoute: DashboardFarmerRoute,
   NegotiateProductIdRoute: NegotiateProductIdRoute,
   ProductProductIdRoute: ProductProductIdRoute,
 }
