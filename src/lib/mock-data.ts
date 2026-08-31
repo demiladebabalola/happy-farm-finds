@@ -173,7 +173,7 @@ export const categories = [
   { label: "Agbalumo", image: IMG.s5_3 },
   { label: "Oils", image: IMG.s5_4 },
   { label: "Tubers", image: yamTubersAsset.url },
-  { label: "Pantry", image: IMG.s5_6 },
+  { label: "Pantry", image: honeyAsset.url },
   { label: "Specials", image: IMG.s5_7 },
 ];
 
