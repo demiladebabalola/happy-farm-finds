@@ -40,7 +40,7 @@ function LoginPage() {
         <img src={IMG.s7_1} className="w-full h-full object-cover" alt="Sunlit farmland" />
       </div>
 
-      <main className="relative z-10 w-full max-w-md fade-in">
+      <main className="relative z-10 w-full max-w-[28rem] fade-in">
         <div className="flex flex-col items-center mb-lg text-center">
           <div className="w-16 h-16 bg-primary-container rounded-3xl flex items-center justify-center mb-4 shadow-sm active:scale-95 transition-transform cursor-pointer">
             <span

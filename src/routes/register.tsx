@@ -49,7 +49,7 @@ function RegisterPage() {
       </div>
 
       <main className="relative z-10 flex items-center justify-center min-h-screen px-margin-mobile py-xl">
-        <div className="w-full max-w-md bg-surface-container-lowest rounded-xl shadow-[0px_12px_40px_rgba(0,0,0,0.08)] p-md flex flex-col gap-md border border-outline-variant/30 fade-in">
+        <div className="w-full max-w-[28rem] bg-surface-container-lowest rounded-xl shadow-[0px_12px_40px_rgba(0,0,0,0.08)] p-md flex flex-col gap-md border border-outline-variant/30 fade-in">
           <header className="text-center">
             <h1 className="font-headline-md text-headline-md-mobile text-primary mb-xs">Join FarmDirect</h1>
             <p className="font-body-md text-body-md text-on-surface-variant">
