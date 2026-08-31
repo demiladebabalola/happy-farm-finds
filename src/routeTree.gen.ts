@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BrowseRouteImport } from './routes/browse'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as NegotiateProductIdRouteImport } from './routes/negotiate.$productId'
 import { Route as ProductProductIdRouteImport } from './routes/product.$productId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -29,6 +30,11 @@ const RegisterRoute = RegisterRouteImport.update({
   path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NegotiateProductIdRoute = NegotiateProductIdRouteImport.update({
+  id: '/negotiate/$productId',
+  path: '/negotiate/$productId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductProductIdRoute = ProductProductIdRouteImport.update({
   id: '/product/$productId',
   path: '/product/$productId',
@@ -39,12 +45,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/browse': typeof BrowseRoute
   '/register': typeof RegisterRoute
+  '/negotiate/$productId': typeof NegotiateProductIdRoute
   '/product/$productId': typeof ProductProductIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/browse': typeof BrowseRoute
   '/register': typeof RegisterRoute
+  '/negotiate/$productId': typeof NegotiateProductIdRoute
   '/product/$productId': typeof ProductProductIdRoute
 }
 export interface FileRoutesById {
@@ -52,20 +60,38 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/browse': typeof BrowseRoute
   '/register': typeof RegisterRoute
+  '/negotiate/$productId': typeof NegotiateProductIdRoute
   '/product/$productId': typeof ProductProductIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/browse' | '/register' | '/product/$productId'
+  fullPaths:
+    | '/'
+    | '/browse'
+    | '/register'
+    | '/negotiate/$productId'
+    | '/product/$productId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/browse' | '/register' | '/product/$productId'
-  id: '__root__' | '/' | '/browse' | '/register' | '/product/$productId'
+  to:
+    | '/'
+    | '/browse'
+    | '/register'
+    | '/negotiate/$productId'
+    | '/product/$productId'
+  id:
+    | '__root__'
+    | '/'
+    | '/browse'
+    | '/register'
+    | '/negotiate/$productId'
+    | '/product/$productId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BrowseRoute: typeof BrowseRoute
   RegisterRoute: typeof RegisterRoute
+  NegotiateProductIdRoute: typeof NegotiateProductIdRoute
   ProductProductIdRoute: typeof ProductProductIdRoute
 }
 
@@ -92,6 +118,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/negotiate/$productId': {
+      id: '/negotiate/$productId'
+      path: '/negotiate/$productId'
+      fullPath: '/negotiate/$productId'
+      preLoaderRoute: typeof NegotiateProductIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/product/$productId': {
       id: '/product/$productId'
       path: '/product/$productId'
@@ -106,6 +139,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BrowseRoute: BrowseRoute,
   RegisterRoute: RegisterRoute,
+  NegotiateProductIdRoute: NegotiateProductIdRoute,
   ProductProductIdRoute: ProductProductIdRoute,
 }
 export const routeTree = rootRouteImport
