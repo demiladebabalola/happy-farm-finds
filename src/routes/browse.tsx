@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import { CustomerBottomNav } from "@/components/CustomerBottomNav";
+import { fetchProducts } from "@/lib/api";
 import { IMG } from "@/lib/images";
-import { browseFilters, categories, naira, products } from "@/lib/mock-data";
+import { browseFilters, categories, naira } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/browse")({
   head: () => ({
@@ -28,16 +30,21 @@ function BrowsePage() {
   const [filter, setFilter] = useState("All Produce");
   const [query, setQuery] = useState("");
 
+  const { data: products, isLoading, error } = useQuery({
+    queryKey: ["products"],
+    queryFn: fetchProducts,
+  });
+
   const visible = useMemo(
     () =>
-      products.filter((product) => {
+      (products ?? []).filter((product: { category: string; name: string; farmer: string; location: string }) => {
         const matchesFilter = filter === "All Produce" || product.category === filter;
         const matchesQuery =
           query.trim() === "" ||
           `${product.name} ${product.farmer} ${product.location}`.toLowerCase().includes(query.toLowerCase());
         return matchesFilter && matchesQuery;
       }),
-    [filter, query],
+    [filter, query, products],
   );
 
   return (
@@ -94,11 +101,10 @@ function BrowsePage() {
           <div className="absolute bottom-0 left-0 right-0 p-margin-mobile md:p-md">
             <p className="font-label-sm text-label-sm text-white/80 uppercase">Today at the farm gate</p>
             <h1 className="font-headline-md text-headline-md-mobile md:text-headline-lg text-white">
-              Fresh from {products.length} local harvests
+              Fresh from {(products ?? []).length} local harvests
             </h1>
           </div>
         </section>
-
 
         <section>
           <h2 className="font-headline-md text-headline-md-mobile mb-sm">Categories</h2>
@@ -124,52 +130,60 @@ function BrowsePage() {
             </span>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-sm md:gap-md">
-            {visible.map((product) => (
-              <Link
-                key={product.id}
-                to="/product/$productId"
-                params={{ productId: product.id }}
-                className="group bg-surface-container-lowest rounded-2xl overflow-hidden border border-outline-variant/40 custom-shadow hover:-translate-y-1 transition-transform duration-200"
-              >
-                <div className="relative aspect-square overflow-hidden">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  {product.badge ? (
-                    <span className="absolute top-2 left-2 px-2 py-1 rounded-full bg-primary text-on-primary font-label-sm text-label-sm">
-                      {product.badge}
-                    </span>
-                  ) : null}
-                </div>
-                <div className="p-3 flex flex-col gap-1">
-                  <h3 className="font-label-md text-body-md line-clamp-1">{product.name}</h3>
-                  <p className="font-label-sm text-label-sm text-on-surface-variant line-clamp-1">
-                    {product.farmer} • {product.location}
-                  </p>
-                  <div className="flex items-center justify-between mt-1">
-                    <span className="font-headline-md text-body-lg text-primary">
-                      {naira(product.price)}
-                      <span className="font-label-sm text-label-sm text-on-surface-variant">/{product.unit}</span>
-                    </span>
-                    <span className="flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant">
-                      <span
-                        className="material-symbols-outlined text-[16px] text-tertiary"
-                        style={{ fontVariationSettings: "'FILL' 1" }}
-                      >
-                        star
+          {isLoading ? (
+            <p className="py-lg text-center font-body-md text-body-md text-on-surface-variant">Loading produce...</p>
+          ) : error ? (
+            <p className="py-lg text-center font-body-md text-body-md text-error" role="alert">
+              Could not load products. Please try again.
+            </p>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-sm md:gap-md">
+              {visible.map((product: { id: string; name: string; farmer: string; location: string; image: string; badge?: string; price: number; unit: string; rating: number }) => (
+                <Link
+                  key={product.id}
+                  to="/product/$productId"
+                  params={{ productId: product.id }}
+                  className="group bg-surface-container-lowest rounded-2xl overflow-hidden border border-outline-variant/40 custom-shadow hover:-translate-y-1 transition-transform duration-200"
+                >
+                  <div className="relative aspect-square overflow-hidden">
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    {product.badge ? (
+                      <span className="absolute top-2 left-2 px-2 py-1 rounded-full bg-primary text-on-primary font-label-sm text-label-sm">
+                        {product.badge}
                       </span>
-                      {product.rating}
-                    </span>
+                    ) : null}
                   </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+                  <div className="p-3 flex flex-col gap-1">
+                    <h3 className="font-label-md text-body-md line-clamp-1">{product.name}</h3>
+                    <p className="font-label-sm text-label-sm text-on-surface-variant line-clamp-1">
+                      {product.farmer} • {product.location}
+                    </p>
+                    <div className="flex items-center justify-between mt-1">
+                      <span className="font-headline-md text-body-lg text-primary">
+                        {naira(product.price)}
+                        <span className="font-label-sm text-label-sm text-on-surface-variant">/{product.unit}</span>
+                      </span>
+                      <span className="flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant">
+                        <span
+                          className="material-symbols-outlined text-[16px] text-tertiary"
+                          style={{ fontVariationSettings: "'FILL' 1" }}
+                        >
+                          star
+                        </span>
+                        {product.rating}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
 
-          {visible.length === 0 ? (
+          {!isLoading && !error && visible.length === 0 ? (
             <p className="py-lg text-center font-body-md text-body-md text-on-surface-variant">
               No produce matches that search yet.
             </p>
