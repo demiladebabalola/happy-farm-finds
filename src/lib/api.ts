@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8000/api";
+const API_URL = "https://swimwear-mastiff-olympics.ngrok-free.dev/api";
 
 export async function fetchProducts() {
   const res = await fetch(`${API_URL}/products`);
