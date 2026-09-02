@@ -3,6 +3,42 @@ import type { NegotiationMessage } from "@/lib/mock-data";
 
 const API_URL = "https://swimwear-mastiff-olympics.ngrok-free.dev/api";
 
+export type CustomerDashboardData = {
+  name?: string;
+  avatar?: string;
+  recentOrders?: {
+    id?: string | number;
+    ref?: string;
+    name?: string;
+    image?: string;
+    total?: number;
+    status?: string;
+  }[];
+};
+
+export type FarmerDashboardData = {
+  farm?: string;
+  avatar?: string;
+  stats?: {
+    products?: number;
+    pendingOrders?: number;
+    negotiations?: number;
+    sales?: number;
+  };
+  recentOrders?: {
+    ref?: string;
+    name?: string;
+    image?: string;
+    total?: number;
+    status?: string;
+  }[];
+  bids?: {
+    productId?: string;
+    buyer?: string;
+    offer?: number;
+  }[];
+};
+
 function parseLaravelError(payload: unknown, fallback: string): string {
   if (typeof payload !== "object" || payload === null) return fallback;
 
