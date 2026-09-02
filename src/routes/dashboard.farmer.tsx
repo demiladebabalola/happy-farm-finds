@@ -30,15 +30,59 @@ const statusStyle = (status: string) => {
 };
 
 function FarmerDashboard() {
-  const data = farmerDashboard;
-  const myProducts = products.filter((product) => product.farmer === data.farm);
+  const mock = farmerDashboard;
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["farmerDashboard"],
+    queryFn: fetchFarmerDashboard,
+  });
 
-  const stats = [
-    { label: "Products", value: String(data.stats.products), icon: "inventory_2" },
-    { label: "Pending orders", value: String(data.stats.pendingOrders), icon: "pending_actions" },
-    { label: "Negotiations", value: String(data.stats.negotiations), icon: "handshake" },
-    { label: "Total sales", value: naira(data.stats.sales), icon: "payments" },
+  const farm = String(data?.farm ?? mock.farm);
+  const avatar = String(data?.avatar ?? mock.avatar);
+  const stats = {
+    products: Number(data?.stats?.products ?? mock.stats.products),
+    pendingOrders: Number(data?.stats?.pendingOrders ?? mock.stats.pendingOrders),
+    negotiations: Number(data?.stats?.negotiations ?? mock.stats.negotiations),
+    sales: Number(data?.stats?.sales ?? mock.stats.sales),
+  };
+  const recentOrders = Array.isArray(data?.recentOrders) ? data.recentOrders : mock.recentOrders;
+  const bids = Array.isArray(data?.bids) ? data.bids : mock.bids;
+
+  const myProducts = products.filter((product) => product.farmer === farm);
+
+  const statCards = [
+    { label: "Products", value: String(stats.products), icon: "inventory_2" },
+    { label: "Pending orders", value: String(stats.pendingOrders), icon: "pending_actions" },
+    { label: "Negotiations", value: String(stats.negotiations), icon: "handshake" },
+    { label: "Total sales", value: naira(stats.sales), icon: "payments" },
   ];
+
+  if (isLoading) {
+    return (
+      <div className="bg-background text-on-surface min-h-screen flex items-center justify-center pb-xl">
+        <div className="flex flex-col items-center gap-sm">
+          <span className="material-symbols-outlined animate-spin text-primary text-4xl">progress_activity</span>
+          <p className="font-label-md text-label-md text-on-surface-variant">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-background text-on-surface min-h-screen flex items-center justify-center px-margin-mobile pb-xl">
+        <div className="max-w-md text-center">
+          <p className="font-headline-md text-headline-md-mobile text-error mb-2">Could not load dashboard</p>
+          <p className="font-body-md text-body-md text-on-surface-variant mb-4">{error.message}</p>
+          <Link
+            to="/browse"
+            className="inline-flex h-12 px-6 rounded-full bg-primary text-on-primary font-label-md text-label-md items-center gap-2"
+          >
+            Browse products
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-background text-on-surface min-h-screen pb-xl">
