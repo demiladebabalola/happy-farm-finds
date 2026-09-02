@@ -182,3 +182,19 @@ export async function sendChatMessage(negotiationId: number, text: string) {
   }
   return res.json();
 }
+
+export async function fetchCustomerDashboard() {
+  const res = await fetch(`${API_URL}/dashboard/customer`, { headers: authHeaders() });
+  if (!res.ok) {
+    await parseApiError(res, "Failed to fetch dashboard");
+  }
+  return res.json();
+}
+
+export async function fetchFarmerDashboard() {
+  const res = await fetch(`${API_URL}/dashboard/farmer`, { headers: authHeaders() });
+  if (!res.ok) {
+    await parseApiError(res, "Failed to fetch dashboard");
+  }
+  return res.json();
+}
