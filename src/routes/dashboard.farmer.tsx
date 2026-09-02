@@ -162,12 +162,12 @@ function FarmerDashboard() {
         <section>
           <div className="flex items-baseline justify-between mb-sm">
             <h2 className="font-headline-md text-headline-md-mobile">Recent orders</h2>
-            <span className="font-label-md text-label-md text-on-surface-variant">
-              {data.recentOrders.length} this week
+          <span className="font-label-md text-label-md text-on-surface-variant">
+              {recentOrders.length} this week
             </span>
           </div>
           <div className="grid gap-sm md:grid-cols-2">
-            {data.recentOrders.map((order) => (
+            {recentOrders.map((order) => (
               <div
                 key={order.ref}
                 className="flex items-center gap-sm p-3 rounded-2xl bg-surface-container-lowest border border-outline-variant/40 custom-shadow"
