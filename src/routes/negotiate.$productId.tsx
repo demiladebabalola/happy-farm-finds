@@ -2,8 +2,8 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { acceptOffer, fetchNegotiation, sendOffer } from "@/lib/api";
-import { getProduct, naira, type NegotiationMessage } from "@/lib/mock-data";
+import { acceptOffer, fetchNegotiation, sendChatMessage, sendOffer } from "@/lib/api";
+import { getProduct, naira } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/negotiate/$productId")({
   loader: ({ params }) => {
@@ -49,8 +49,6 @@ function NegotiateNotFound() {
   );
 }
 
-const clock = () =>
-  new Date().toLocaleTimeString("en-NG", { hour: "2-digit", minute: "2-digit", hour12: true });
 
 function NegotiatePage() {
   const { product } = Route.useLoaderData();
@@ -66,7 +64,7 @@ function NegotiatePage() {
 
   const [yourOffer, setYourOffer] = useState<number>(product.price);
   const [draft, setDraft] = useState("");
-  const [localMessages, setLocalMessages] = useState<NegotiationMessage[]>([]);
+
 
   useEffect(() => {
     if (negotiation) {
@@ -81,10 +79,6 @@ function NegotiatePage() {
     return null;
   }, [negotiation]);
 
-  const allMessages = useMemo(
-    () => [...(negotiation?.messages ?? []), ...localMessages],
-    [negotiation?.messages, localMessages]
-  );
 
   const offerMutation = useMutation({
     mutationFn: async (offer: number) => {
@@ -106,6 +100,16 @@ function NegotiatePage() {
     },
   });
 
+  const chatMutation = useMutation({
+    mutationFn: async (text: string) => {
+      if (!negotiation) throw new Error("Negotiation not loaded");
+      return sendChatMessage(negotiation.id, text);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["negotiation", productId] });
+    },
+  });
+
   const sendOfferForm = (event: React.FormEvent) => {
     event.preventDefault();
     if (!yourOffer || settled !== null || offerMutation.isPending || !negotiation) return;
@@ -118,36 +122,16 @@ function NegotiatePage() {
   };
 
   const rejectFarmerAsk = () => {
-    setLocalMessages((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        side: "buyer",
-        text: "That's still above my budget — I'll pass for now.",
-        time: clock(),
-      },
-    ]);
+    if (!negotiation || chatMutation.isPending) return;
+    chatMutation.mutate("That's still above my budget — I'll pass for now.");
   };
 
   const sendMessage = (event: React.FormEvent) => {
     event.preventDefault();
-    if (!draft.trim()) return;
-    setLocalMessages((prev) => [
-      ...prev,
-      { id: Date.now(), side: "buyer", text: draft.trim(), time: clock() },
-    ]);
+    const text = draft.trim();
+    if (!text || chatMutation.isPending || !negotiation) return;
+    chatMutation.mutate(text);
     setDraft("");
-    setTimeout(() => {
-      setLocalMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now(),
-          side: "farmer",
-          text: "Noted — let me confirm with the harvest team and get back to you.",
-          time: clock(),
-        },
-      ]);
-    }, 800);
   };
 
   return (
@@ -261,7 +245,7 @@ function NegotiatePage() {
         )}
 
         <section className="flex flex-col gap-sm">
-          {allMessages.map((message) => (
+          {(negotiation?.messages ?? []).map((message) => (
             <div
               key={`${message.id}-${message.time}`}
               className={message.side === "buyer" ? "flex justify-end" : "flex justify-start"}
@@ -290,11 +274,13 @@ function NegotiatePage() {
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
             placeholder="Message the farmer..."
-            className="flex-1 h-12 px-4 bg-surface-container-low border border-outline-variant rounded-full outline-none focus:border-primary focus:ring-1 focus:ring-primary font-body-md text-body-md"
+            disabled={chatMutation.isPending}
+            className="flex-1 h-12 px-4 bg-surface-container-low border border-outline-variant rounded-full outline-none focus:border-primary focus:ring-1 focus:ring-primary font-body-md text-body-md disabled:opacity-60"
           />
           <button
             type="submit"
-            className="w-12 h-12 shrink-0 rounded-full bg-primary text-on-primary flex items-center justify-center active:scale-95 transition-transform"
+            disabled={chatMutation.isPending}
+            className="w-12 h-12 shrink-0 rounded-full bg-primary text-on-primary flex items-center justify-center active:scale-95 transition-transform disabled:opacity-60"
             aria-label="Send message"
           >
             <span className="material-symbols-outlined">send</span>

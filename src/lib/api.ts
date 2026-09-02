@@ -170,3 +170,15 @@ export async function acceptOffer(negotiationId: number) {
   }
   return res.json();
 }
+
+export async function sendChatMessage(negotiationId: number, text: string) {
+  const res = await fetch(`${API_URL}/negotiations/${negotiationId}/message`, {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify({ text }),
+  });
+  if (!res.ok) {
+    await parseApiError(res, "Failed to send message");
+  }
+  return res.json();
+}
