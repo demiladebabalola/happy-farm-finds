@@ -93,7 +93,7 @@ function RegisterPage() {
                 <span className="material-symbols-outlined absolute left-3 text-outline text-[20px]">
                   person
                 </span>
-                <input className={field} id="fullName" placeholder="Enter your full name" type="text" required />
+                <input className={field} id="fullName" name="fullName" placeholder="Enter your full name" type="text" required />
               </div>
             </div>
 
@@ -103,7 +103,7 @@ function RegisterPage() {
               </label>
               <div className="relative flex items-center">
                 <span className="material-symbols-outlined absolute left-3 text-outline text-[20px]">mail</span>
-                <input className={field} id="email" placeholder="name@example.com" type="email" required />
+                <input className={field} id="email" name="email" placeholder="name@example.com" type="email" required />
               </div>
             </div>
 
@@ -113,7 +113,7 @@ function RegisterPage() {
               </label>
               <div className="relative flex items-center">
                 <span className="material-symbols-outlined absolute left-3 text-outline text-[20px]">call</span>
-                <input className={field} id="phone" placeholder="+234 800 000 0000" type="tel" />
+                <input className={field} id="phone" name="phone" placeholder="+234 800 000 0000" type="tel" />
               </div>
             </div>
 
@@ -125,7 +125,7 @@ function RegisterPage() {
                 <span className="material-symbols-outlined absolute left-3 text-outline text-[20px]">
                   location_on
                 </span>
-                <input className={field} id="address" placeholder="12 Farm Road, Kuje, Abuja" type="text" />
+                <input className={field} id="address" name="address" placeholder="12 Farm Road, Kuje, Abuja" type="text" />
               </div>
             </div>
 
@@ -161,7 +161,7 @@ function RegisterPage() {
                   <span className="material-symbols-outlined absolute left-3 text-outline text-[20px]">lock</span>
                   <input
                     className={field.replace("pr-4", "pr-12")}
-                    id="password"
+                    id="password" name="password"
                     placeholder="Create password"
                     type={showPassword ? "text" : "password"}
                     required
@@ -188,7 +188,7 @@ function RegisterPage() {
                   </span>
                   <input
                     className={field.replace("pr-4", "pr-12")}
-                    id="confirmPassword"
+                    id="confirmPassword" name="confirmPassword"
                     placeholder="Repeat password"
                     type={showConfirm ? "text" : "password"}
                     required
