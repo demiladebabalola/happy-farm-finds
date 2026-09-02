@@ -2,8 +2,8 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { acceptOffer, fetchNegotiation, sendOffer } from "@/lib/api";
-import { getProduct, naira, type NegotiationMessage } from "@/lib/mock-data";
+import { acceptOffer, fetchNegotiation, sendChatMessage, sendOffer } from "@/lib/api";
+import { getProduct, naira } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/negotiate/$productId")({
   loader: ({ params }) => {
