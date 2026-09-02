@@ -122,7 +122,7 @@ function CustomerDashboard() {
             </Link>
           </div>
           <div className="flex flex-col gap-sm">
-            {data.recentOrders.map((order) => (
+            {recentOrders.map((order) => (
               <div
                 key={order.id}
                 className="flex items-center gap-sm p-3 rounded-2xl bg-surface-container-lowest border border-outline-variant/40 custom-shadow"
