@@ -206,11 +206,18 @@ function RegisterPage() {
               </div>
             </div>
 
+            {error ? (
+              <p className="font-label-md text-label-md text-error text-center" role="alert">
+                {error}
+              </p>
+            ) : null}
+
             <button
-              className="mt-md w-full h-14 bg-primary text-on-primary font-label-md text-body-lg rounded-lg shadow-sm hover:bg-primary-container active:scale-95 transition-all duration-200 flex items-center justify-center gap-base"
+              className="mt-md w-full h-14 bg-primary text-on-primary font-label-md text-body-lg rounded-lg shadow-sm hover:bg-primary-container active:scale-95 transition-all duration-200 flex items-center justify-center gap-base disabled:opacity-60"
               type="submit"
+              disabled={loading}
             >
-              Register
+              {loading ? "Creating account..." : "Register"}
               <span className="material-symbols-outlined">arrow_forward</span>
             </button>
           </form>
