@@ -132,18 +132,18 @@ function FarmerDashboard() {
           <h2 className="font-headline-md text-headline-md-mobile mb-sm">Buyer offers awaiting reply</h2>
           <div className="flex flex-col gap-sm">
             {bids.map((bid) => {
-              const product = getProduct(bid.productId);
+              const product = getProduct(bid.productId ?? "");
               if (!product) return null;
               return (
                 <div
-                  key={bid.productId}
+                  key={bid.productId ?? bid.buyer}
                   className="flex items-center gap-sm p-3 rounded-2xl bg-surface-container-low border border-outline-variant/40"
                 >
                   <img src={product.image} alt={product.name} className="w-14 h-14 rounded-xl object-cover" />
                   <div className="flex-1 min-w-0">
                     <p className="font-label-md text-body-md truncate">{product.name}</p>
                     <p className="font-label-sm text-label-sm text-on-surface-variant">
-                      {bid.buyer} offers {naira(bid.offer)} • you ask {naira(product.price)}
+                      {bid.buyer} offers {naira(bid.offer ?? 0)} • you ask {naira(product.price)}
                     </p>
                   </div>
                   <Link
