@@ -1,8 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
+import { loginUser } from "@/lib/api";
 import { IMG } from "@/lib/images";
-import { dashboardPath, setRole, type Role } from "@/lib/session";
+import { dashboardPath, saveSession, type Role } from "@/lib/session";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -27,11 +28,26 @@ function LoginPage() {
   const navigate = useNavigate();
   const [role, setSelectedRole] = useState<Role>("customer");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleLogin = (event: React.FormEvent) => {
+  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setRole(role);
-    navigate({ to: dashboardPath(role) });
+    const form = new FormData(event.currentTarget);
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await loginUser(
+        String(form.get("email") ?? ""),
+        String(form.get("password") ?? ""),
+      );
+      const serverRole = saveSession(result?.token ?? result?.access_token, result?.user ?? result);
+      navigate({ to: dashboardPath(serverRole) });
+    } catch {
+      setError("Login failed. Check your email and password.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -152,11 +168,18 @@ function LoginPage() {
               </Link>
             </div>
 
+            {error ? (
+              <p className="font-body-md text-body-md text-error text-center" role="alert">
+                {error}
+              </p>
+            ) : null}
+
             <button
               type="submit"
-              className="w-full h-[56px] bg-primary-container text-on-primary font-label-md text-headline-md rounded-2xl shadow-lg shadow-primary-container/20 hover:bg-primary-container/90 active:scale-[0.98] transition-all duration-200"
+              disabled={loading}
+              className="w-full h-[56px] bg-primary-container text-on-primary font-label-md text-headline-md rounded-2xl shadow-lg shadow-primary-container/20 hover:bg-primary-container/90 active:scale-[0.98] transition-all duration-200 disabled:opacity-60"
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </button>
           </form>
         </div>
