@@ -245,7 +245,7 @@ function NegotiatePage() {
         )}
 
         <section className="flex flex-col gap-sm">
-          {allMessages.map((message) => (
+          {(negotiation?.messages ?? []).map((message) => (
             <div
               key={`${message.id}-${message.time}`}
               className={message.side === "buyer" ? "flex justify-end" : "flex justify-start"}
@@ -274,11 +274,13 @@ function NegotiatePage() {
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
             placeholder="Message the farmer..."
-            className="flex-1 h-12 px-4 bg-surface-container-low border border-outline-variant rounded-full outline-none focus:border-primary focus:ring-1 focus:ring-primary font-body-md text-body-md"
+            disabled={chatMutation.isPending}
+            className="flex-1 h-12 px-4 bg-surface-container-low border border-outline-variant rounded-full outline-none focus:border-primary focus:ring-1 focus:ring-primary font-body-md text-body-md disabled:opacity-60"
           />
           <button
             type="submit"
-            className="w-12 h-12 shrink-0 rounded-full bg-primary text-on-primary flex items-center justify-center active:scale-95 transition-transform"
+            disabled={chatMutation.isPending}
+            className="w-12 h-12 shrink-0 rounded-full bg-primary text-on-primary flex items-center justify-center active:scale-95 transition-transform disabled:opacity-60"
             aria-label="Send message"
           >
             <span className="material-symbols-outlined">send</span>
