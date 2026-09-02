@@ -170,7 +170,7 @@ export const getProduct = (id: string) => products.find((p) => p.id === id);
 
 export const categories = [
   { label: "Ugu Leaves", image: IMG.s5_2 },
-  { label: "Agbalumo", image: IMG.s5_3 },
+  { label: "Agbalumo", image: "https://commons.wikimedia.org/wiki/Special:FilePath/African_star_apple_1.jpg" },
   { label: "Oils", image: IMG.s5_4 },
   { label: "Tubers", image: yamTubersAsset.url },
   { label: "Pantry", image: honeyAsset.url },
