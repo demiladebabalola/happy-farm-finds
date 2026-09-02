@@ -88,10 +88,10 @@ function FarmerDashboard() {
     <div className="bg-background text-on-surface min-h-screen pb-xl">
       <header className="sticky top-0 z-40 glass-header border-b border-outline-variant/40">
         <div className="max-w-6xl mx-auto px-margin-mobile md:px-gutter h-16 flex items-center gap-sm">
-          <img src={data.avatar} alt={data.farm} className="w-10 h-10 rounded-full object-cover" />
+          <img src={avatar} alt={farm} className="w-10 h-10 rounded-full object-cover" />
           <div className="flex-1 min-w-0">
             <p className="font-label-sm text-label-sm text-on-surface-variant">Farmer dashboard</p>
-            <p className="font-label-md text-body-md truncate">{data.farm}</p>
+            <p className="font-label-md text-body-md truncate">{farm}</p>
           </div>
           <Link
             to="/browse"
