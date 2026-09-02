@@ -105,18 +105,18 @@ function FarmerDashboard() {
 
       <main className="max-w-6xl mx-auto px-margin-mobile md:px-gutter py-md flex flex-col gap-md">
         <section className="relative overflow-hidden rounded-3xl">
-          <img src={data.heroImage} alt="Farm harvest" className="w-full h-36 md:h-48 object-cover" />
+          <img src={mock.heroImage} alt="Farm harvest" className="w-full h-36 md:h-48 object-cover" />
           <div className="absolute inset-0 hero-gradient" />
           <div className="absolute bottom-0 left-0 p-md">
             <p className="font-label-sm text-label-sm text-white/80 uppercase">This month</p>
             <p className="font-display-lg text-headline-lg-mobile md:text-headline-lg text-white">
-              {naira(data.stats.sales)} in sales
+              {naira(stats.sales)} in sales
             </p>
           </div>
         </section>
 
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-sm">
-          {stats.map((stat) => (
+          {statCards.map((stat) => (
             <div
               key={stat.label}
               className="p-4 rounded-2xl bg-surface-container-lowest border border-outline-variant/40 custom-shadow"
