@@ -1,8 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
+import { registerUser } from "@/lib/api";
 import { IMG } from "@/lib/images";
-import { dashboardPath, setRole, type Role } from "@/lib/session";
+import { dashboardPath, saveSession, type Role } from "@/lib/session";
 
 export const Route = createFileRoute("/register")({
   head: () => ({
@@ -28,12 +29,38 @@ function RegisterPage() {
   const [role, setSelectedRole] = useState<Role>("customer");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleRegister = (event: React.FormEvent) => {
+  const handleRegister = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setRole(role);
-    navigate({ to: dashboardPath(role) });
+    const form = new FormData(event.currentTarget);
+    const password = String(form.get("password") ?? "");
+    if (password !== String(form.get("confirmPassword") ?? "")) {
+      setError("Passwords do not match.");
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const location = String(form.get("address") ?? "");
+      const result = await registerUser({
+        name: String(form.get("fullName") ?? ""),
+        email: String(form.get("email") ?? ""),
+        password,
+        role,
+        ...(role === "farmer" ? { farm_name: String(form.get("fullName") ?? "") } : {}),
+        ...(location ? { location } : {}),
+      });
+      const serverRole = saveSession(result?.token ?? result?.access_token, result?.user ?? result);
+      navigate({ to: dashboardPath(serverRole) });
+    } catch {
+      setError("Registration failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   const field =
     "w-full h-12 pl-10 pr-4 bg-surface-container-low border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg transition-all font-body-md text-body-md placeholder:text-outline-variant outline-none";
