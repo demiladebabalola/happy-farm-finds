@@ -178,9 +178,9 @@ function FarmerDashboard() {
                   <p className="font-label-sm text-label-sm text-on-surface-variant">{order.ref}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-label-md text-body-md">{naira(order.total)}</p>
+                  <p className="font-label-md text-body-md">{naira(order.total ?? 0)}</p>
                   <span
-                    className={`inline-block mt-1 px-2 py-0.5 rounded-full font-label-sm text-label-sm ${statusStyle(order.status)}`}
+                    className={`inline-block mt-1 px-2 py-0.5 rounded-full font-label-sm text-label-sm ${statusStyle(order.status ?? "")}`}
                   >
                     {order.status}
                   </span>
