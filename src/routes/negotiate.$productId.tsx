@@ -1,18 +1,15 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-import {
-  defaultNegotiation,
-  getProduct,
-  naira,
-  type NegotiationMessage,
-} from "@/lib/mock-data";
+import { acceptOffer, fetchNegotiation, sendOffer } from "@/lib/api";
+import { getProduct, naira, type NegotiationMessage } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/negotiate/$productId")({
   loader: ({ params }) => {
     const product = getProduct(params.productId);
     if (!product) throw notFound();
-    return { product, negotiation: defaultNegotiation(params.productId) };
+    return { product };
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
@@ -56,56 +53,101 @@ const clock = () =>
   new Date().toLocaleTimeString("en-NG", { hour: "2-digit", minute: "2-digit", hour12: true });
 
 function NegotiatePage() {
-  const { product, negotiation } = Route.useLoaderData();
+  const { product } = Route.useLoaderData();
+  const { productId } = Route.useParams();
+  const queryClient = useQueryClient();
 
-  const [messages, setMessages] = useState<NegotiationMessage[]>(negotiation.messages);
-  const [status, setStatus] = useState<string>(negotiation.status);
-  const [yourOffer, setYourOffer] = useState<number>(negotiation.buyerOffer);
-  const [farmerAsk, setFarmerAsk] = useState<number>(negotiation.farmerAsk);
+  const { data: negotiation, isLoading, error } = useQuery({
+    queryKey: ["negotiation", productId],
+    queryFn: () => fetchNegotiation(productId),
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
+
+  const [yourOffer, setYourOffer] = useState<number>(product.price);
   const [draft, setDraft] = useState("");
-  const [settled, setSettled] = useState<number | null>(null);
+  const [localMessages, setLocalMessages] = useState<NegotiationMessage[]>([]);
 
-  const push = (side: NegotiationMessage["side"], text: string) =>
-    setMessages((prev) => [...prev, { id: prev.length + 1, side, text, type: undefined, time: clock() } as NegotiationMessage]);
+  useEffect(() => {
+    if (negotiation) {
+      setYourOffer(negotiation.buyerOffer);
+    }
+  }, [negotiation?.buyerOffer]);
 
-  const sendOffer = (event: React.FormEvent) => {
+  const settled = useMemo(() => {
+    if (negotiation?.status === "Accepted") {
+      return negotiation.settledPrice ?? negotiation.farmerAsk;
+    }
+    return null;
+  }, [negotiation]);
+
+  const allMessages = useMemo(
+    () => [...(negotiation?.messages ?? []), ...localMessages],
+    [negotiation?.messages, localMessages]
+  );
+
+  const offerMutation = useMutation({
+    mutationFn: async (offer: number) => {
+      if (!negotiation) throw new Error("Negotiation not loaded");
+      return sendOffer(negotiation.id, offer);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["negotiation", productId] });
+    },
+  });
+
+  const acceptMutation = useMutation({
+    mutationFn: async () => {
+      if (!negotiation) throw new Error("Negotiation not loaded");
+      return acceptOffer(negotiation.id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["negotiation", productId] });
+    },
+  });
+
+  const sendOfferForm = (event: React.FormEvent) => {
     event.preventDefault();
-    if (!yourOffer || settled !== null) return;
-    push("buyer", `New offer: ${naira(yourOffer)} per ${product.unit}.`);
-    setStatus("Offer Sent");
-
-    const counter = Math.max(yourOffer, Math.round((yourOffer + farmerAsk) / 2));
-    setTimeout(() => {
-      if (yourOffer >= farmerAsk) {
-        push("farmer", `Deal! ${naira(yourOffer)} per ${product.unit} works. I'll pack it today.`);
-        setStatus("Accepted");
-        setSettled(yourOffer);
-      } else {
-        setFarmerAsk(counter);
-        push("farmer", `I can meet you at ${naira(counter)} per ${product.unit}. Final from my side.`);
-        setStatus("Counter-Offer Received");
-      }
-    }, 700);
+    if (!yourOffer || settled !== null || offerMutation.isPending || !negotiation) return;
+    offerMutation.mutate(yourOffer);
   };
 
   const acceptFarmerAsk = () => {
-    push("buyer", `Accepted at ${naira(farmerAsk)} per ${product.unit}. Please pack ${product.name}.`);
-    setStatus("Accepted");
-    setSettled(farmerAsk);
-    setYourOffer(farmerAsk);
+    if (settled !== null || acceptMutation.isPending || !negotiation) return;
+    acceptMutation.mutate();
   };
 
   const rejectFarmerAsk = () => {
-    push("buyer", "That's still above my budget — I'll pass for now.");
-    setStatus("Rejected");
+    setLocalMessages((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        side: "buyer",
+        text: "That's still above my budget — I'll pass for now.",
+        time: clock(),
+      },
+    ]);
   };
 
   const sendMessage = (event: React.FormEvent) => {
     event.preventDefault();
     if (!draft.trim()) return;
-    push("buyer", draft.trim());
+    setLocalMessages((prev) => [
+      ...prev,
+      { id: Date.now(), side: "buyer", text: draft.trim(), time: clock() },
+    ]);
     setDraft("");
-    setTimeout(() => push("farmer", "Noted — let me confirm with the harvest team and get back to you."), 800);
+    setTimeout(() => {
+      setLocalMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          side: "farmer",
+          text: "Noted — let me confirm with the harvest team and get back to you.",
+          time: clock(),
+        },
+      ]);
+    }, 800);
   };
 
   return (
@@ -122,7 +164,9 @@ function NegotiatePage() {
           <img src={product.farmerAvatar} alt={product.farmer} className="w-10 h-10 rounded-full object-cover" />
           <div className="min-w-0">
             <p className="font-label-md text-body-md truncate">{product.farmer}</p>
-            <p className="font-label-sm text-label-sm text-on-surface-variant truncate">{status}</p>
+            <p className="font-label-sm text-label-sm text-on-surface-variant truncate">
+              {isLoading ? "Loading..." : negotiation?.status ?? "Unavailable"}
+            </p>
           </div>
         </div>
       </header>
@@ -138,6 +182,15 @@ function NegotiatePage() {
           </div>
         </section>
 
+        {error && (
+          <div className="p-4 rounded-2xl bg-error-container text-on-error-container flex items-center gap-sm">
+            <span className="material-symbols-outlined">error</span>
+            <p className="font-body-md text-body-md">
+              {error instanceof Error ? error.message : "Failed to load negotiation"}
+            </p>
+          </div>
+        )}
+
         <section className="grid grid-cols-2 gap-sm">
           <div className="p-4 rounded-2xl bg-surface-container-lowest border border-outline-variant/40 custom-shadow">
             <p className="font-label-sm text-label-sm text-on-surface-variant uppercase">Your offer</p>
@@ -145,7 +198,9 @@ function NegotiatePage() {
           </div>
           <div className="p-4 rounded-2xl bg-surface-container-lowest border border-outline-variant/40 custom-shadow">
             <p className="font-label-sm text-label-sm text-on-surface-variant uppercase">Farmer asks</p>
-            <p className="font-headline-lg text-headline-md text-tertiary">{naira(farmerAsk)}</p>
+            <p className="font-headline-lg text-headline-md text-tertiary">
+              {naira(negotiation?.farmerAsk ?? product.price)}
+            </p>
           </div>
         </section>
 
@@ -156,9 +211,13 @@ function NegotiatePage() {
               Deal agreed at {naira(settled)} per {product.unit}.
             </p>
           </div>
+        ) : isLoading ? (
+          <div className="p-4 rounded-2xl bg-surface-container-low text-on-surface-variant font-body-md text-body-md">
+            Loading negotiation...
+          </div>
         ) : (
           <section className="flex flex-col gap-sm">
-            <form onSubmit={sendOffer} className="flex flex-col sm:flex-row gap-sm">
+            <form onSubmit={sendOfferForm} className="flex flex-col sm:flex-row gap-sm">
               <div className="relative flex-1">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 font-body-md text-body-md text-on-surface-variant">
                   ₦
@@ -168,13 +227,15 @@ function NegotiatePage() {
                   min={1}
                   value={yourOffer}
                   onChange={(event) => setYourOffer(Number(event.target.value))}
-                  className="w-full h-14 pl-9 pr-4 bg-surface-container-low border border-outline-variant rounded-2xl outline-none focus:border-primary focus:ring-1 focus:ring-primary font-body-md text-body-md"
+                  disabled={offerMutation.isPending}
+                  className="w-full h-14 pl-9 pr-4 bg-surface-container-low border border-outline-variant rounded-2xl outline-none focus:border-primary focus:ring-1 focus:ring-primary font-body-md text-body-md disabled:opacity-60"
                   aria-label={`Your offer per ${product.unit}`}
                 />
               </div>
               <button
                 type="submit"
-                className="h-14 px-6 rounded-2xl bg-primary text-on-primary font-label-md text-body-md flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
+                disabled={offerMutation.isPending}
+                className="h-14 px-6 rounded-2xl bg-primary text-on-primary font-label-md text-body-md flex items-center justify-center gap-2 active:scale-[0.98] transition-transform disabled:opacity-60"
               >
                 <span className="material-symbols-outlined">send</span>
                 Send offer
@@ -184,9 +245,10 @@ function NegotiatePage() {
             <div className="flex gap-sm">
               <button
                 onClick={acceptFarmerAsk}
-                className="flex-1 h-12 rounded-2xl bg-primary-container text-on-primary-container font-label-md text-label-md"
+                disabled={acceptMutation.isPending || !negotiation}
+                className="flex-1 h-12 rounded-2xl bg-primary-container text-on-primary-container font-label-md text-label-md disabled:opacity-60"
               >
-                Accept {naira(farmerAsk)}
+                Accept {naira(negotiation?.farmerAsk ?? product.price)}
               </button>
               <button
                 onClick={rejectFarmerAsk}
@@ -199,7 +261,7 @@ function NegotiatePage() {
         )}
 
         <section className="flex flex-col gap-sm">
-          {messages.map((message) => (
+          {allMessages.map((message) => (
             <div
               key={`${message.id}-${message.time}`}
               className={message.side === "buyer" ? "flex justify-end" : "flex justify-start"}
