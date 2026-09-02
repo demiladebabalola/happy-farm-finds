@@ -183,12 +183,63 @@ export async function sendChatMessage(negotiationId: number, text: string) {
   return res.json();
 }
 
+function normalizeCustomerDashboard(data: unknown): Record<string, unknown> {
+  if (typeof data !== "object" || data === null) return {};
+  const d = data as Record<string, unknown>;
+  const rawOrders = Array.isArray(d["recent_orders"]) ? d["recent_orders"] : d["recentOrders"];
+  const orders = Array.isArray(rawOrders)
+    ? rawOrders.map((o) => normalizeOrder(o))
+    : undefined;
+  return {
+    name: d["name"],
+    avatar: d["avatar"],
+    recentOrders: orders,
+  };
+}
+
+function normalizeFarmerDashboard(data: unknown): Record<string, unknown> {
+  if (typeof data !== "object" || data === null) return {};
+  const d = data as Record<string, unknown>;
+  const rawStats =
+    typeof d["stats"] === "object" && d["stats"] !== null
+      ? (d["stats"] as Record<string, unknown>)
+      : {};
+  const rawOrders = Array.isArray(d["recent_orders"]) ? d["recent_orders"] : d["recentOrders"];
+  const rawBids = Array.isArray(d["bids"]) ? d["bids"] : d["bids"];
+  return {
+    farm: d["farm"],
+    avatar: d["avatar"],
+    stats: {
+      products: rawStats["products"] ?? rawStats["products_count"],
+      pendingOrders: rawStats["pending_orders"] ?? rawStats["pendingOrders"],
+      negotiations: rawStats["negotiations"] ?? rawStats["negotiations_count"],
+      sales: rawStats["sales"] ?? rawStats["total_sales"],
+    },
+    recentOrders: Array.isArray(rawOrders) ? rawOrders.map((o) => normalizeOrder(o)) : undefined,
+    bids: Array.isArray(rawBids) ? rawBids : undefined,
+  };
+}
+
+function normalizeOrder(o: unknown): Record<string, unknown> {
+  if (typeof o !== "object" || o === null) return {};
+  const order = o as Record<string, unknown>;
+  return {
+    id: order["id"],
+    ref: order["ref"],
+    name: order["name"],
+    image: order["image"],
+    total: order["total"],
+    status: order["status"],
+  };
+}
+
 export async function fetchCustomerDashboard() {
   const res = await fetch(`${API_URL}/dashboard/customer`, { headers: authHeaders() });
   if (!res.ok) {
     await parseApiError(res, "Failed to fetch dashboard");
   }
-  return res.json();
+  const payload = await res.json();
+  return normalizeCustomerDashboard(payload);
 }
 
 export async function fetchFarmerDashboard() {
@@ -196,5 +247,6 @@ export async function fetchFarmerDashboard() {
   if (!res.ok) {
     await parseApiError(res, "Failed to fetch dashboard");
   }
-  return res.json();
+  const payload = await res.json();
+  return normalizeFarmerDashboard(payload);
 }
