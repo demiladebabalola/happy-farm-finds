@@ -3,6 +3,50 @@ import type { NegotiationMessage } from "@/lib/mock-data";
 
 const API_URL = "https://swimwear-mastiff-olympics.ngrok-free.dev/api";
 
+export type CustomerDashboardData = {
+  name?: string | undefined;
+  avatar?: string | undefined;
+  recentOrders?:
+    | {
+        id?: string | number | undefined;
+        ref?: string | undefined;
+        name?: string | undefined;
+        image?: string | undefined;
+        total?: number | undefined;
+        status?: string | undefined;
+      }[]
+    | undefined;
+};
+
+export type FarmerDashboardData = {
+  farm?: string | undefined;
+  avatar?: string | undefined;
+  stats?:
+    | {
+        products?: number | undefined;
+        pendingOrders?: number | undefined;
+        negotiations?: number | undefined;
+        sales?: number | undefined;
+      }
+    | undefined;
+  recentOrders?:
+    | {
+        ref?: string | undefined;
+        name?: string | undefined;
+        image?: string | undefined;
+        total?: number | undefined;
+        status?: string | undefined;
+      }[]
+    | undefined;
+  bids?:
+    | {
+        productId?: string | undefined;
+        buyer?: string | undefined;
+        offer?: number | undefined;
+      }[]
+    | undefined;
+};
+
 function parseLaravelError(payload: unknown, fallback: string): string {
   if (typeof payload !== "object" || payload === null) return fallback;
 
@@ -181,4 +225,89 @@ export async function sendChatMessage(negotiationId: number, text: string) {
     await parseApiError(res, "Failed to send message");
   }
   return res.json();
+}
+
+function normalizeCustomerDashboard(data: unknown): CustomerDashboardData {
+  if (typeof data !== "object" || data === null) return {};
+  const d = data as Record<string, unknown>;
+  const rawOrders = Array.isArray(d["recent_orders"]) ? d["recent_orders"] : d["recentOrders"];
+  const orders = Array.isArray(rawOrders)
+    ? rawOrders.map((o) => normalizeOrder(o))
+    : undefined;
+  return {
+    name: d["name"] as string | undefined,
+    avatar: d["avatar"] as string | undefined,
+    recentOrders: orders,
+  };
+}
+
+function normalizeFarmerDashboard(data: unknown): FarmerDashboardData {
+  if (typeof data !== "object" || data === null) return {};
+  const d = data as Record<string, unknown>;
+  const rawStats =
+    typeof d["stats"] === "object" && d["stats"] !== null
+      ? (d["stats"] as Record<string, unknown>)
+      : {};
+  const rawOrders = Array.isArray(d["recent_orders"]) ? d["recent_orders"] : d["recentOrders"];
+  const rawBids = Array.isArray(d["bids"]) ? d["bids"] : undefined;
+  return {
+    farm: d["farm"] as string | undefined,
+    avatar: d["avatar"] as string | undefined,
+    stats: {
+      products: rawStats["products"] as number | undefined,
+      pendingOrders: rawStats["pending_orders"] as number | undefined,
+      negotiations: rawStats["negotiations"] as number | undefined,
+      sales: rawStats["sales"] as number | undefined,
+    },
+    recentOrders: Array.isArray(rawOrders) ? rawOrders.map((o) => normalizeOrder(o)) : undefined,
+    bids: Array.isArray(rawBids)
+      ? rawBids.map((b) => {
+          if (typeof b !== "object" || b === null) return {};
+          const bid = b as Record<string, unknown>;
+          return {
+            productId: bid["product_id"] as string | undefined,
+            buyer: bid["buyer"] as string | undefined,
+            offer: bid["offer"] as number | undefined,
+          };
+        })
+      : undefined,
+  };
+}
+
+function normalizeOrder(o: unknown): {
+  id?: string | number | undefined;
+  ref?: string | undefined;
+  name?: string | undefined;
+  image?: string | undefined;
+  total?: number | undefined;
+  status?: string | undefined;
+} {
+  if (typeof o !== "object" || o === null) return {};
+  const order = o as Record<string, unknown>;
+  return {
+    id: order["id"] as string | number | undefined,
+    ref: order["ref"] as string | undefined,
+    name: order["name"] as string | undefined,
+    image: order["image"] as string | undefined,
+    total: order["total"] as number | undefined,
+    status: order["status"] as string | undefined,
+  };
+}
+
+export async function fetchCustomerDashboard() {
+  const res = await fetch(`${API_URL}/dashboard/customer`, { headers: authHeaders() });
+  if (!res.ok) {
+    await parseApiError(res, "Failed to fetch dashboard");
+  }
+  const payload = await res.json();
+  return normalizeCustomerDashboard(payload);
+}
+
+export async function fetchFarmerDashboard() {
+  const res = await fetch(`${API_URL}/dashboard/farmer`, { headers: authHeaders() });
+  if (!res.ok) {
+    await parseApiError(res, "Failed to fetch dashboard");
+  }
+  const payload = await res.json();
+  return normalizeFarmerDashboard(payload);
 }

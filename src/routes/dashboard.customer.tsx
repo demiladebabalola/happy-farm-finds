@@ -1,6 +1,8 @@
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { CustomerBottomNav } from "@/components/CustomerBottomNav";
+import { fetchCustomerDashboard } from "@/lib/api";
 import { customerDashboard, getProduct, naira, products } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/dashboard/customer")({
@@ -28,19 +30,56 @@ const statusStyle = (status: string) =>
     : "bg-tertiary-container text-on-tertiary-container";
 
 function CustomerDashboard() {
-  const data = customerDashboard;
-  const recommended = data.recommended
+  const mock = customerDashboard;
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["customerDashboard"],
+    queryFn: fetchCustomerDashboard,
+  });
+
+  const name = data?.name ?? mock.name;
+  const avatar = data?.avatar ?? mock.avatar;
+  const recentOrders = Array.isArray(data?.recentOrders) ? data.recentOrders : mock.recentOrders;
+
+  const recommended = mock.recommended
     .map((item) => ({ ...item, product: getProduct(item.productId) }))
     .filter((item) => item.product);
+
+  if (isLoading) {
+    return (
+      <div className="bg-background text-on-surface min-h-screen flex items-center justify-center pb-28 md:pb-xl">
+        <div className="flex flex-col items-center gap-sm">
+          <span className="material-symbols-outlined animate-spin text-primary text-4xl">progress_activity</span>
+          <p className="font-label-md text-label-md text-on-surface-variant">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-background text-on-surface min-h-screen flex items-center justify-center px-margin-mobile pb-28 md:pb-xl">
+        <div className="max-w-md text-center">
+          <p className="font-headline-md text-headline-md-mobile text-error mb-2">Could not load dashboard</p>
+          <p className="font-body-md text-body-md text-on-surface-variant mb-4">{error.message}</p>
+          <Link
+            to="/browse"
+            className="inline-flex h-12 px-6 rounded-full bg-primary text-on-primary font-label-md text-label-md items-center gap-2"
+          >
+            Browse products
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-background text-on-surface min-h-screen pb-28 md:pb-xl">
       <header className="sticky top-0 z-40 glass-header border-b border-outline-variant/40">
         <div className="max-w-6xl mx-auto px-margin-mobile md:px-gutter h-16 flex items-center gap-sm">
-          <img src={data.avatar} alt={data.name} className="w-10 h-10 rounded-full object-cover" />
+          <img src={avatar} alt={name} className="w-10 h-10 rounded-full object-cover" />
           <div className="flex-1 min-w-0">
             <p className="font-label-sm text-label-sm text-on-surface-variant">Welcome back</p>
-            <p className="font-label-md text-body-md truncate">{data.name}</p>
+            <p className="font-label-md text-body-md truncate">{name}</p>
           </div>
           <Link
             to="/browse"
@@ -51,7 +90,7 @@ function CustomerDashboard() {
           <button className="relative w-10 h-10 flex items-center justify-center rounded-full bg-primary-container text-on-primary-container">
             <span className="material-symbols-outlined">shopping_basket</span>
             <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-error text-on-error font-label-sm text-[10px] flex items-center justify-center">
-              {data.cart.items}
+              {mock.cart.items}
             </span>
           </button>
         </div>
@@ -62,9 +101,9 @@ function CustomerDashboard() {
           <div>
             <p className="font-label-sm text-label-sm uppercase opacity-80">Basket total</p>
             <p className="font-display-lg text-headline-lg-mobile md:text-headline-lg">
-              {naira(data.cart.total)}
+              {naira(mock.cart.total)}
             </p>
-            <p className="font-label-md text-label-md opacity-90">{data.cart.items} items ready for checkout</p>
+            <p className="font-label-md text-label-md opacity-90">{mock.cart.items} items ready for checkout</p>
           </div>
           <Link
             to="/browse"
@@ -83,7 +122,7 @@ function CustomerDashboard() {
             </Link>
           </div>
           <div className="flex flex-col gap-sm">
-            {data.recentOrders.map((order) => (
+            {recentOrders.map((order) => (
               <div
                 key={order.id}
                 className="flex items-center gap-sm p-3 rounded-2xl bg-surface-container-lowest border border-outline-variant/40 custom-shadow"
@@ -94,9 +133,9 @@ function CustomerDashboard() {
                   <p className="font-label-sm text-label-sm text-on-surface-variant">Order {order.id}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-label-md text-body-md">{naira(order.total)}</p>
+                  <p className="font-label-md text-body-md">{naira(order.total ?? 0)}</p>
                   <span
-                    className={`inline-block mt-1 px-2 py-0.5 rounded-full font-label-sm text-label-sm ${statusStyle(order.status)}`}
+                    className={`inline-block mt-1 px-2 py-0.5 rounded-full font-label-sm text-label-sm ${statusStyle(order.status ?? "")}`}
                   >
                     {order.status}
                   </span>
