@@ -219,7 +219,7 @@ export async function sendChatMessage(negotiationId: number, text: string) {
   return res.json();
 }
 
-function normalizeCustomerDashboard(data: unknown): Record<string, unknown> {
+function normalizeCustomerDashboard(data: unknown): CustomerDashboardData {
   if (typeof data !== "object" || data === null) return {};
   const d = data as Record<string, unknown>;
   const rawOrders = Array.isArray(d["recent_orders"]) ? d["recent_orders"] : d["recentOrders"];
@@ -227,13 +227,13 @@ function normalizeCustomerDashboard(data: unknown): Record<string, unknown> {
     ? rawOrders.map((o) => normalizeOrder(o))
     : undefined;
   return {
-    name: d["name"],
-    avatar: d["avatar"],
+    name: d["name"] as string | undefined,
+    avatar: d["avatar"] as string | undefined,
     recentOrders: orders,
   };
 }
 
-function normalizeFarmerDashboard(data: unknown): Record<string, unknown> {
+function normalizeFarmerDashboard(data: unknown): FarmerDashboardData {
   if (typeof data !== "object" || data === null) return {};
   const d = data as Record<string, unknown>;
   const rawStats =
@@ -241,31 +241,48 @@ function normalizeFarmerDashboard(data: unknown): Record<string, unknown> {
       ? (d["stats"] as Record<string, unknown>)
       : {};
   const rawOrders = Array.isArray(d["recent_orders"]) ? d["recent_orders"] : d["recentOrders"];
-  const rawBids = Array.isArray(d["bids"]) ? d["bids"] : d["bids"];
+  const rawBids = Array.isArray(d["bids"]) ? d["bids"] : undefined;
   return {
-    farm: d["farm"],
-    avatar: d["avatar"],
+    farm: d["farm"] as string | undefined,
+    avatar: d["avatar"] as string | undefined,
     stats: {
-      products: rawStats["products"] ?? rawStats["products_count"],
-      pendingOrders: rawStats["pending_orders"] ?? rawStats["pendingOrders"],
-      negotiations: rawStats["negotiations"] ?? rawStats["negotiations_count"],
-      sales: rawStats["sales"] ?? rawStats["total_sales"],
+      products: rawStats["products"] as number | undefined,
+      pendingOrders: rawStats["pending_orders"] as number | undefined,
+      negotiations: rawStats["negotiations"] as number | undefined,
+      sales: rawStats["sales"] as number | undefined,
     },
     recentOrders: Array.isArray(rawOrders) ? rawOrders.map((o) => normalizeOrder(o)) : undefined,
-    bids: Array.isArray(rawBids) ? rawBids : undefined,
+    bids: Array.isArray(rawBids)
+      ? rawBids.map((b) => {
+          if (typeof b !== "object" || b === null) return {};
+          const bid = b as Record<string, unknown>;
+          return {
+            productId: bid["product_id"] as string | undefined,
+            buyer: bid["buyer"] as string | undefined,
+            offer: bid["offer"] as number | undefined,
+          };
+        })
+      : undefined,
   };
 }
 
-function normalizeOrder(o: unknown): Record<string, unknown> {
+function normalizeOrder(o: unknown): {
+  id?: string | number;
+  ref?: string;
+  name?: string;
+  image?: string;
+  total?: number;
+  status?: string;
+} {
   if (typeof o !== "object" || o === null) return {};
   const order = o as Record<string, unknown>;
   return {
-    id: order["id"],
-    ref: order["ref"],
-    name: order["name"],
-    image: order["image"],
-    total: order["total"],
-    status: order["status"],
+    id: order["id"] as string | number | undefined,
+    ref: order["ref"] as string | undefined,
+    name: order["name"] as string | undefined,
+    image: order["image"] as string | undefined,
+    total: order["total"] as number | undefined,
+    status: order["status"] as string | undefined,
   };
 }
 
