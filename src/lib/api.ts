@@ -4,39 +4,47 @@ import type { NegotiationMessage } from "@/lib/mock-data";
 const API_URL = "https://swimwear-mastiff-olympics.ngrok-free.dev/api";
 
 export type CustomerDashboardData = {
-  name?: string;
-  avatar?: string;
-  recentOrders?: {
-    id?: string | number;
-    ref?: string;
-    name?: string;
-    image?: string;
-    total?: number;
-    status?: string;
-  }[];
+  name?: string | undefined;
+  avatar?: string | undefined;
+  recentOrders?:
+    | {
+        id?: string | number | undefined;
+        ref?: string | undefined;
+        name?: string | undefined;
+        image?: string | undefined;
+        total?: number | undefined;
+        status?: string | undefined;
+      }[]
+    | undefined;
 };
 
 export type FarmerDashboardData = {
-  farm?: string;
-  avatar?: string;
-  stats?: {
-    products?: number;
-    pendingOrders?: number;
-    negotiations?: number;
-    sales?: number;
-  };
-  recentOrders?: {
-    ref?: string;
-    name?: string;
-    image?: string;
-    total?: number;
-    status?: string;
-  }[];
-  bids?: {
-    productId?: string;
-    buyer?: string;
-    offer?: number;
-  }[];
+  farm?: string | undefined;
+  avatar?: string | undefined;
+  stats?:
+    | {
+        products?: number | undefined;
+        pendingOrders?: number | undefined;
+        negotiations?: number | undefined;
+        sales?: number | undefined;
+      }
+    | undefined;
+  recentOrders?:
+    | {
+        ref?: string | undefined;
+        name?: string | undefined;
+        image?: string | undefined;
+        total?: number | undefined;
+        status?: string | undefined;
+      }[]
+    | undefined;
+  bids?:
+    | {
+        productId?: string | undefined;
+        buyer?: string | undefined;
+        offer?: number | undefined;
+      }[]
+    | undefined;
 };
 
 function parseLaravelError(payload: unknown, fallback: string): string {
