@@ -275,12 +275,12 @@ function normalizeFarmerDashboard(data: unknown): FarmerDashboardData {
 }
 
 function normalizeOrder(o: unknown): {
-  id?: string | number;
-  ref?: string;
-  name?: string;
-  image?: string;
-  total?: number;
-  status?: string;
+  id?: string | number | undefined;
+  ref?: string | undefined;
+  name?: string | undefined;
+  image?: string | undefined;
+  total?: number | undefined;
+  status?: string | undefined;
 } {
   if (typeof o !== "object" || o === null) return {};
   const order = o as Record<string, unknown>;
