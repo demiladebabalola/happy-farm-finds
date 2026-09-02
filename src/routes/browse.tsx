@@ -96,7 +96,11 @@ function BrowsePage() {
 
       <main className="max-w-7xl mx-auto px-margin-mobile md:px-gutter py-md flex flex-col gap-md">
         <section className="relative overflow-hidden rounded-3xl">
-          <img src={IMG.s5_12} alt="Today's harvest" className="w-full h-40 md:h-56 object-cover" />
+          <img
+            src="/images/browse-banner.png"
+            alt="Farmers harvesting in the field"
+            className="w-full h-40 md:h-56 object-cover object-center"
+          />
           <div className="absolute inset-0 hero-gradient" />
           <div className="absolute bottom-0 left-0 right-0 p-margin-mobile md:p-md">
             <p className="font-label-sm text-label-sm text-white/80 uppercase">Today at the farm gate</p>
