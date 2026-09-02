@@ -49,8 +49,6 @@ function NegotiateNotFound() {
   );
 }
 
-const clock = () =>
-  new Date().toLocaleTimeString("en-NG", { hour: "2-digit", minute: "2-digit", hour12: true });
 
 function NegotiatePage() {
   const { product } = Route.useLoaderData();
@@ -66,7 +64,7 @@ function NegotiatePage() {
 
   const [yourOffer, setYourOffer] = useState<number>(product.price);
   const [draft, setDraft] = useState("");
-  const [localMessages, setLocalMessages] = useState<NegotiationMessage[]>([]);
+
 
   useEffect(() => {
     if (negotiation) {
