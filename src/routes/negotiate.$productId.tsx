@@ -79,10 +79,6 @@ function NegotiatePage() {
     return null;
   }, [negotiation]);
 
-  const allMessages = useMemo(
-    () => [...(negotiation?.messages ?? []), ...localMessages],
-    [negotiation?.messages, localMessages]
-  );
 
   const offerMutation = useMutation({
     mutationFn: async (offer: number) => {
@@ -104,6 +100,16 @@ function NegotiatePage() {
     },
   });
 
+  const chatMutation = useMutation({
+    mutationFn: async (text: string) => {
+      if (!negotiation) throw new Error("Negotiation not loaded");
+      return sendChatMessage(negotiation.id, text);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["negotiation", productId] });
+    },
+  });
+
   const sendOfferForm = (event: React.FormEvent) => {
     event.preventDefault();
     if (!yourOffer || settled !== null || offerMutation.isPending || !negotiation) return;
@@ -116,36 +122,16 @@ function NegotiatePage() {
   };
 
   const rejectFarmerAsk = () => {
-    setLocalMessages((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        side: "buyer",
-        text: "That's still above my budget — I'll pass for now.",
-        time: clock(),
-      },
-    ]);
+    if (!negotiation || chatMutation.isPending) return;
+    chatMutation.mutate("That's still above my budget — I'll pass for now.");
   };
 
   const sendMessage = (event: React.FormEvent) => {
     event.preventDefault();
-    if (!draft.trim()) return;
-    setLocalMessages((prev) => [
-      ...prev,
-      { id: Date.now(), side: "buyer", text: draft.trim(), time: clock() },
-    ]);
+    const text = draft.trim();
+    if (!text || chatMutation.isPending || !negotiation) return;
+    chatMutation.mutate(text);
     setDraft("");
-    setTimeout(() => {
-      setLocalMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now(),
-          side: "farmer",
-          text: "Noted — let me confirm with the harvest team and get back to you.",
-          time: clock(),
-        },
-      ]);
-    }, 800);
   };
 
   return (
