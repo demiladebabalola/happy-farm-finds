@@ -90,7 +90,7 @@ function CustomerDashboard() {
           <button className="relative w-10 h-10 flex items-center justify-center rounded-full bg-primary-container text-on-primary-container">
             <span className="material-symbols-outlined">shopping_basket</span>
             <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-error text-on-error font-label-sm text-[10px] flex items-center justify-center">
-              {data.cart.items}
+              {mock.cart.items}
             </span>
           </button>
         </div>
@@ -101,9 +101,9 @@ function CustomerDashboard() {
           <div>
             <p className="font-label-sm text-label-sm uppercase opacity-80">Basket total</p>
             <p className="font-display-lg text-headline-lg-mobile md:text-headline-lg">
-              {naira(data.cart.total)}
+              {naira(mock.cart.total)}
             </p>
-            <p className="font-label-md text-label-md opacity-90">{data.cart.items} items ready for checkout</p>
+            <p className="font-label-md text-label-md opacity-90">{mock.cart.items} items ready for checkout</p>
           </div>
           <Link
             to="/browse"
