@@ -5,8 +5,8 @@ function parseLaravelError(payload: unknown, fallback: string): string {
 
   const obj = payload as Record<string, unknown>;
 
-  if (obj.errors && typeof obj.errors === "object" && obj.errors !== null) {
-    const errors = obj.errors as Record<string, unknown>;
+  if (obj["errors"] && typeof obj["errors"] === "object" && obj["errors"] !== null) {
+    const errors = obj["errors"] as Record<string, unknown>;
     for (const key of Object.keys(errors)) {
       const value = errors[key];
       if (Array.isArray(value) && value.length > 0 && typeof value[0] === "string") {
@@ -18,8 +18,8 @@ function parseLaravelError(payload: unknown, fallback: string): string {
     }
   }
 
-  if (typeof obj.message === "string" && obj.message.length > 0) {
-    return obj.message;
+  if (typeof obj["message"] === "string" && obj["message"].length > 0) {
+    return obj["message"];
   }
 
   return fallback;
