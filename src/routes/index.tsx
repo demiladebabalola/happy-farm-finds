@@ -43,8 +43,8 @@ function LoginPage() {
       );
       const serverRole = saveSession(result?.token ?? result?.access_token, result?.user ?? result);
       navigate({ to: dashboardPath(serverRole) });
-    } catch {
-      setError("Login failed. Check your email and password.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Login failed. Check your email and password.");
     } finally {
       setLoading(false);
     }
