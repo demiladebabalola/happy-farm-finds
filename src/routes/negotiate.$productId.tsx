@@ -1,8 +1,8 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { acceptOffer, fetchNegotiation, sendChatMessage, sendOffer } from "@/lib/api";
+import { acceptOffer, createOrder, fetchNegotiation, sendChatMessage, sendOffer } from "@/lib/api";
 import { getProduct, naira } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/negotiate/$productId")({
@@ -54,6 +54,7 @@ function NegotiatePage() {
   const { product } = Route.useLoaderData();
   const { productId } = Route.useParams();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const { data: negotiation, isLoading, error } = useQuery({
     queryKey: ["negotiation", productId],
@@ -64,6 +65,8 @@ function NegotiatePage() {
 
   const [yourOffer, setYourOffer] = useState<number>(product.price);
   const [draft, setDraft] = useState("");
+  const [orderResult, setOrderResult] = useState<{ ref?: string } | null>(null);
+  const [orderError, setOrderError] = useState<string | null>(null);
 
 
   useEffect(() => {
@@ -90,6 +93,22 @@ function NegotiatePage() {
     },
   });
 
+  const orderMutation = useMutation({
+    mutationFn: async (negotiationId: number) => {
+      return createOrder(negotiationId);
+    },
+    onSuccess: (data) => {
+      const payload = data as Record<string, unknown>;
+      const ref = String(payload["ref"] ?? payload["reference"] ?? payload["order_ref"] ?? "");
+      setOrderResult({ ref });
+      setOrderError(null);
+      queryClient.invalidateQueries({ queryKey: ["customerDashboard"] });
+    },
+    onError: (err) => {
+      setOrderError(err instanceof Error ? err.message : "Failed to create order");
+    },
+  });
+
   const acceptMutation = useMutation({
     mutationFn: async () => {
       if (!negotiation) throw new Error("Negotiation not loaded");
@@ -97,6 +116,9 @@ function NegotiatePage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["negotiation", productId] });
+      if (negotiation) {
+        orderMutation.mutate(negotiation.id);
+      }
     },
   });
 
@@ -117,7 +139,9 @@ function NegotiatePage() {
   };
 
   const acceptFarmerAsk = () => {
-    if (settled !== null || acceptMutation.isPending || !negotiation) return;
+    if (settled !== null || acceptMutation.isPending || orderMutation.isPending || !negotiation) return;
+    setOrderError(null);
+    setOrderResult(null);
     acceptMutation.mutate();
   };
 
@@ -132,6 +156,10 @@ function NegotiatePage() {
     if (!text || chatMutation.isPending || !negotiation) return;
     chatMutation.mutate(text);
     setDraft("");
+  };
+
+  const goToDashboard = () => {
+    navigate({ to: "/dashboard/customer" });
   };
 
   return (
@@ -189,11 +217,51 @@ function NegotiatePage() {
         </section>
 
         {settled !== null ? (
-          <div className="p-4 rounded-2xl bg-primary-container text-on-primary-container flex items-center gap-sm">
-            <span className="material-symbols-outlined">check_circle</span>
-            <p className="font-label-md text-body-md">
-              Deal agreed at {naira(settled)} per {product.unit}.
-            </p>
+          <div className="flex flex-col gap-sm">
+            <div className="p-4 rounded-2xl bg-primary-container text-on-primary-container flex items-center gap-sm">
+              <span className="material-symbols-outlined">check_circle</span>
+              <p className="font-label-md text-body-md">
+                Deal agreed at {naira(settled)} per {product.unit}.
+              </p>
+            </div>
+
+            {orderMutation.isPending ? (
+              <div className="p-4 rounded-2xl bg-surface-container-low text-on-surface-variant flex items-center gap-sm">
+                <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                <p className="font-body-md text-body-md">Placing your order...</p>
+              </div>
+            ) : orderResult?.ref ? (
+              <div className="p-4 rounded-2xl bg-tertiary-container text-on-tertiary-container flex flex-col gap-sm">
+                <div className="flex items-center gap-sm">
+                  <span className="material-symbols-outlined">receipt_long</span>
+                  <p className="font-label-md text-body-md">Order placed!</p>
+                </div>
+                <p className="font-body-md text-body-md">
+                  Reference: <span className="font-label-md">{orderResult.ref}</span>
+                </p>
+                <button
+                  onClick={goToDashboard}
+                  className="h-12 px-6 rounded-2xl bg-tertiary text-on-tertiary font-label-md text-label-md self-start"
+                >
+                  Go to dashboard
+                </button>
+              </div>
+            ) : orderError ? (
+              <div className="p-4 rounded-2xl bg-error-container text-on-error-container flex flex-col gap-sm">
+                <div className="flex items-center gap-sm">
+                  <span className="material-symbols-outlined">error</span>
+                  <p className="font-label-md text-body-md">Order could not be placed</p>
+                </div>
+                <p className="font-body-md text-body-md">{orderError}</p>
+                <button
+                  onClick={() => negotiation && orderMutation.mutate(negotiation.id)}
+                  disabled={orderMutation.isPending}
+                  className="h-12 px-6 rounded-2xl bg-error text-on-error font-label-md text-label-md self-start disabled:opacity-60"
+                >
+                  Retry order
+                </button>
+              </div>
+            ) : null}
           </div>
         ) : isLoading ? (
           <div className="p-4 rounded-2xl bg-surface-container-low text-on-surface-variant font-body-md text-body-md">
@@ -229,7 +297,7 @@ function NegotiatePage() {
             <div className="flex gap-sm">
               <button
                 onClick={acceptFarmerAsk}
-                disabled={acceptMutation.isPending || !negotiation}
+                disabled={acceptMutation.isPending || orderMutation.isPending || !negotiation}
                 className="flex-1 h-12 rounded-2xl bg-primary-container text-on-primary-container font-label-md text-label-md disabled:opacity-60"
               >
                 Accept {naira(negotiation?.farmerAsk ?? product.price)}
