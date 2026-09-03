@@ -227,6 +227,18 @@ export async function sendChatMessage(negotiationId: number, text: string) {
   return res.json();
 }
 
+export async function createOrder(negotiationId: number, quantity: number = 1) {
+  const res = await fetch(`${API_URL}/orders`, {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify({ negotiation_id: negotiationId, quantity }),
+  });
+  if (!res.ok) {
+    await parseApiError(res, "Failed to create order");
+  }
+  return res.json();
+}
+
 function normalizeCustomerDashboard(data: unknown): CustomerDashboardData {
   if (typeof data !== "object" || data === null) return {};
   const d = data as Record<string, unknown>;
