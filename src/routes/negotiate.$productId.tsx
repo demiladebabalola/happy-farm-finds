@@ -297,7 +297,7 @@ function NegotiatePage() {
             <div className="flex gap-sm">
               <button
                 onClick={acceptFarmerAsk}
-                disabled={acceptMutation.isPending || !negotiation}
+                disabled={acceptMutation.isPending || orderMutation.isPending || !negotiation}
                 className="flex-1 h-12 rounded-2xl bg-primary-container text-on-primary-container font-label-md text-label-md disabled:opacity-60"
               >
                 Accept {naira(negotiation?.farmerAsk ?? product.price)}
