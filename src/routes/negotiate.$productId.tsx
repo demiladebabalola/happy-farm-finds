@@ -217,11 +217,51 @@ function NegotiatePage() {
         </section>
 
         {settled !== null ? (
-          <div className="p-4 rounded-2xl bg-primary-container text-on-primary-container flex items-center gap-sm">
-            <span className="material-symbols-outlined">check_circle</span>
-            <p className="font-label-md text-body-md">
-              Deal agreed at {naira(settled)} per {product.unit}.
-            </p>
+          <div className="flex flex-col gap-sm">
+            <div className="p-4 rounded-2xl bg-primary-container text-on-primary-container flex items-center gap-sm">
+              <span className="material-symbols-outlined">check_circle</span>
+              <p className="font-label-md text-body-md">
+                Deal agreed at {naira(settled)} per {product.unit}.
+              </p>
+            </div>
+
+            {orderMutation.isPending ? (
+              <div className="p-4 rounded-2xl bg-surface-container-low text-on-surface-variant flex items-center gap-sm">
+                <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                <p className="font-body-md text-body-md">Placing your order...</p>
+              </div>
+            ) : orderResult?.ref ? (
+              <div className="p-4 rounded-2xl bg-tertiary-container text-on-tertiary-container flex flex-col gap-sm">
+                <div className="flex items-center gap-sm">
+                  <span className="material-symbols-outlined">receipt_long</span>
+                  <p className="font-label-md text-body-md">Order placed!</p>
+                </div>
+                <p className="font-body-md text-body-md">
+                  Reference: <span className="font-label-md">{orderResult.ref}</span>
+                </p>
+                <button
+                  onClick={goToDashboard}
+                  className="h-12 px-6 rounded-2xl bg-tertiary text-on-tertiary font-label-md text-label-md self-start"
+                >
+                  Go to dashboard
+                </button>
+              </div>
+            ) : orderError ? (
+              <div className="p-4 rounded-2xl bg-error-container text-on-error-container flex flex-col gap-sm">
+                <div className="flex items-center gap-sm">
+                  <span className="material-symbols-outlined">error</span>
+                  <p className="font-label-md text-body-md">Order could not be placed</p>
+                </div>
+                <p className="font-body-md text-body-md">{orderError}</p>
+                <button
+                  onClick={() => negotiation && orderMutation.mutate(negotiation.id)}
+                  disabled={orderMutation.isPending}
+                  className="h-12 px-6 rounded-2xl bg-error text-on-error font-label-md text-label-md self-start disabled:opacity-60"
+                >
+                  Retry order
+                </button>
+              </div>
+            ) : null}
           </div>
         ) : isLoading ? (
           <div className="p-4 rounded-2xl bg-surface-container-low text-on-surface-variant font-body-md text-body-md">
