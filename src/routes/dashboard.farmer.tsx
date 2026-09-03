@@ -39,10 +39,10 @@ function FarmerDashboard() {
   const farm = String(data?.farm ?? mock.farm);
   const avatar = String(data?.avatar ?? mock.avatar);
   const stats = {
-    products: Number(data?.stats?.products ?? mock.stats.products),
-    pendingOrders: Number(data?.stats?.pendingOrders ?? mock.stats.pendingOrders),
-    negotiations: Number(data?.stats?.negotiations ?? mock.stats.negotiations),
-    sales: Number(data?.stats?.sales ?? mock.stats.sales),
+    products: Number(data?.stats?.products ?? 0),
+    pendingOrders: Number(data?.stats?.pendingOrders ?? 0),
+    negotiations: Number(data?.stats?.negotiations ?? 0),
+    sales: Number(data?.stats?.sales ?? 0),
   };
   const recentOrders = Array.isArray(data?.recentOrders) ? data.recentOrders : mock.recentOrders;
   const bids = Array.isArray(data?.bids) ? data.bids : mock.bids;
