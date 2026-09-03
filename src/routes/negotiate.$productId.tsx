@@ -54,6 +54,7 @@ function NegotiatePage() {
   const { product } = Route.useLoaderData();
   const { productId } = Route.useParams();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const { data: negotiation, isLoading, error } = useQuery({
     queryKey: ["negotiation", productId],
@@ -64,6 +65,8 @@ function NegotiatePage() {
 
   const [yourOffer, setYourOffer] = useState<number>(product.price);
   const [draft, setDraft] = useState("");
+  const [orderResult, setOrderResult] = useState<{ ref?: string } | null>(null);
+  const [orderError, setOrderError] = useState<string | null>(null);
 
 
   useEffect(() => {
@@ -90,6 +93,22 @@ function NegotiatePage() {
     },
   });
 
+  const orderMutation = useMutation({
+    mutationFn: async (negotiationId: number) => {
+      return createOrder(negotiationId);
+    },
+    onSuccess: (data) => {
+      const payload = data as Record<string, unknown>;
+      const ref = String(payload["ref"] ?? payload["reference"] ?? payload["order_ref"] ?? "");
+      setOrderResult({ ref });
+      setOrderError(null);
+      queryClient.invalidateQueries({ queryKey: ["customerDashboard"] });
+    },
+    onError: (err) => {
+      setOrderError(err instanceof Error ? err.message : "Failed to create order");
+    },
+  });
+
   const acceptMutation = useMutation({
     mutationFn: async () => {
       if (!negotiation) throw new Error("Negotiation not loaded");
@@ -97,6 +116,9 @@ function NegotiatePage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["negotiation", productId] });
+      if (negotiation) {
+        orderMutation.mutate(negotiation.id);
+      }
     },
   });
 
@@ -117,7 +139,9 @@ function NegotiatePage() {
   };
 
   const acceptFarmerAsk = () => {
-    if (settled !== null || acceptMutation.isPending || !negotiation) return;
+    if (settled !== null || acceptMutation.isPending || orderMutation.isPending || !negotiation) return;
+    setOrderError(null);
+    setOrderResult(null);
     acceptMutation.mutate();
   };
 
@@ -132,6 +156,10 @@ function NegotiatePage() {
     if (!text || chatMutation.isPending || !negotiation) return;
     chatMutation.mutate(text);
     setDraft("");
+  };
+
+  const goToDashboard = () => {
+    navigate({ to: "/dashboard/customer" });
   };
 
   return (
