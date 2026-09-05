@@ -101,7 +101,22 @@ function NegotiatePage() {
     onSuccess: (data) => {
       console.log("createOrder response:", data);
       const payload = data as Record<string, unknown>;
-      const ref = String(payload["ref"] ?? payload["reference"] ?? payload["order_ref"] ?? "");
+      const nested =
+        payload["order"] && typeof payload["order"] === "object"
+          ? (payload["order"] as Record<string, unknown>)
+          : payload["data"] && typeof payload["data"] === "object"
+            ? (payload["data"] as Record<string, unknown>)
+            : null;
+      const source = nested ?? payload;
+      const ref = String(
+        source["ref"] ??
+          source["reference"] ??
+          source["order_ref"] ??
+          payload["ref"] ??
+          payload["reference"] ??
+          payload["order_ref"] ??
+          "",
+      );
       setOrderResult({ ref });
       setOrderError(null);
       toast.success("Order placed!", {
