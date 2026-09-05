@@ -1,6 +1,7 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import { acceptOffer, createOrder, fetchNegotiation, sendChatMessage, sendOffer } from "@/lib/api";
 import { getProduct, naira } from "@/lib/mock-data";
