@@ -3,8 +3,32 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { acceptOffer, createOrder, fetchNegotiation, sendChatMessage, sendOffer } from "@/lib/api";
+import {
+  acceptOffer,
+  createOrder,
+  fetchNegotiation,
+  initializePayment,
+  sendChatMessage,
+  sendOffer,
+  verifyPayment,
+} from "@/lib/api";
 import { getProduct, naira } from "@/lib/mock-data";
+
+type PaystackHandler = { openIframe: () => void };
+type PaystackSetupOptions = {
+  key: string;
+  email: string;
+  amount: number;
+  ref: string;
+  currency: string;
+  callback: (response: { reference: string }) => void;
+  onClose: () => void;
+};
+declare global {
+  interface Window {
+    PaystackPop?: { setup: (options: PaystackSetupOptions) => PaystackHandler };
+  }
+}
 
 export const Route = createFileRoute("/negotiate/$productId")({
   loader: ({ params }) => {
