@@ -90,8 +90,11 @@ function NegotiatePage() {
 
   const [yourOffer, setYourOffer] = useState<number>(product.price);
   const [draft, setDraft] = useState("");
-  const [orderResult, setOrderResult] = useState<{ ref?: string } | null>(null);
+  const [orderResult, setOrderResult] = useState<{ ref?: string; id?: number } | null>(null);
   const [orderError, setOrderError] = useState<string | null>(null);
+  const [paymentStatus, setPaymentStatus] = useState<
+    { kind: "idle" } | { kind: "pending" } | { kind: "success"; message: string } | { kind: "error"; message: string }
+  >({ kind: "idle" });
 
 
   useEffect(() => {
