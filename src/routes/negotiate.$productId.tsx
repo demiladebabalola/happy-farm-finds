@@ -121,6 +121,57 @@ function NegotiatePage() {
     },
   });
 
+  const startPayment = async (orderId: number) => {
+    setPaymentStatus({ kind: "pending" });
+    try {
+      const init = (await initializePayment(orderId)) as Record<string, unknown>;
+      console.log("initializePayment response:", init);
+      const nested =
+        init["data"] && typeof init["data"] === "object" ? (init["data"] as Record<string, unknown>) : init;
+      const reference = String(nested["reference"] ?? init["reference"] ?? "");
+      const amount = Number(nested["amount"] ?? init["amount"] ?? 0);
+      const email = String(nested["email"] ?? init["email"] ?? "");
+      const publicKey = String(nested["public_key"] ?? init["public_key"] ?? "");
+
+      if (!window.PaystackPop || !reference || !publicKey) {
+        throw new Error("Payment could not be started. Please try again.");
+      }
+
+      window.PaystackPop.setup({
+        key: publicKey,
+        email,
+        amount: amount * 100,
+        ref: reference,
+        currency: "NGN",
+        callback: (response) => {
+          verifyPayment(response.reference)
+            .then((result) => {
+              console.log("verifyPayment response:", result);
+              setPaymentStatus({ kind: "success", message: "Payment successful! Order confirmed." });
+              toast.success("Payment successful!", { description: "Your order is confirmed." });
+              queryClient.invalidateQueries({ queryKey: ["customerDashboard"] });
+            })
+            .catch((err: unknown) => {
+              const message = err instanceof Error ? err.message : "We could not verify your payment.";
+              setPaymentStatus({ kind: "error", message });
+              toast.error("Payment verification failed", { description: message });
+            });
+        },
+        onClose: () => {
+          setPaymentStatus({
+            kind: "error",
+            message: "Payment was not completed. You can pay later from your order.",
+          });
+          toast("Payment was not completed", { description: "You can pay later from your order." });
+        },
+      }).openIframe();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to initialize payment";
+      setPaymentStatus({ kind: "error", message });
+      toast.error("Payment could not be started", { description: message });
+    }
+  };
+
   const orderMutation = useMutation({
     mutationFn: async (negotiationId: number) => {
       return createOrder(negotiationId);
