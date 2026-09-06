@@ -195,12 +195,16 @@ function NegotiatePage() {
           payload["order_ref"] ??
           "",
       );
-      setOrderResult({ ref });
+      const orderId = Number(source["id"] ?? payload["id"] ?? 0);
+      setOrderResult({ ref, id: orderId });
       setOrderError(null);
       toast.success("Order placed!", {
         description: ref ? `Reference: ${ref}` : "Your order was created successfully.",
       });
       queryClient.invalidateQueries({ queryKey: ["customerDashboard"] });
+      if (orderId) {
+        void startPayment(orderId);
+      }
     },
     onError: (err) => {
       setOrderError(err instanceof Error ? err.message : "Failed to create order");
