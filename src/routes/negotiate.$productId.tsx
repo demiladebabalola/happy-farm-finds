@@ -344,6 +344,25 @@ function NegotiatePage() {
                 <p className="font-body-md text-body-md">
                   Reference: <span className="font-label-md">{orderResult.ref}</span>
                 </p>
+                {paymentStatus.kind === "pending" && (
+                  <p className="font-body-md text-body-md">Opening secure payment...</p>
+                )}
+                {paymentStatus.kind === "success" && (
+                  <p className="font-label-md text-body-md">{paymentStatus.message}</p>
+                )}
+                {paymentStatus.kind === "error" && (
+                  <div className="flex flex-col gap-sm">
+                    <p className="font-body-md text-body-md">{paymentStatus.message}</p>
+                    {orderResult.id ? (
+                      <button
+                        onClick={() => orderResult.id && void startPayment(orderResult.id)}
+                        className="h-12 px-6 rounded-2xl bg-primary text-on-primary font-label-md text-label-md self-start"
+                      >
+                        Pay now
+                      </button>
+                    ) : null}
+                  </div>
+                )}
                 <button
                   onClick={goToDashboard}
                   className="h-12 px-6 rounded-2xl bg-tertiary text-on-tertiary font-label-md text-label-md self-start"
