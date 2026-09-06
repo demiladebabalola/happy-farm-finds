@@ -3,8 +3,32 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { acceptOffer, createOrder, fetchNegotiation, sendChatMessage, sendOffer } from "@/lib/api";
+import {
+  acceptOffer,
+  createOrder,
+  fetchNegotiation,
+  initializePayment,
+  sendChatMessage,
+  sendOffer,
+  verifyPayment,
+} from "@/lib/api";
 import { getProduct, naira } from "@/lib/mock-data";
+
+type PaystackHandler = { openIframe: () => void };
+type PaystackSetupOptions = {
+  key: string;
+  email: string;
+  amount: number;
+  ref: string;
+  currency: string;
+  callback: (response: { reference: string }) => void;
+  onClose: () => void;
+};
+declare global {
+  interface Window {
+    PaystackPop?: { setup: (options: PaystackSetupOptions) => PaystackHandler };
+  }
+}
 
 export const Route = createFileRoute("/negotiate/$productId")({
   loader: ({ params }) => {
@@ -66,8 +90,11 @@ function NegotiatePage() {
 
   const [yourOffer, setYourOffer] = useState<number>(product.price);
   const [draft, setDraft] = useState("");
-  const [orderResult, setOrderResult] = useState<{ ref?: string } | null>(null);
+  const [orderResult, setOrderResult] = useState<{ ref?: string; id?: number } | null>(null);
   const [orderError, setOrderError] = useState<string | null>(null);
+  const [paymentStatus, setPaymentStatus] = useState<
+    { kind: "idle" } | { kind: "pending" } | { kind: "success"; message: string } | { kind: "error"; message: string }
+  >({ kind: "idle" });
 
 
   useEffect(() => {
@@ -94,6 +121,57 @@ function NegotiatePage() {
     },
   });
 
+  const startPayment = async (orderId: number) => {
+    setPaymentStatus({ kind: "pending" });
+    try {
+      const init = (await initializePayment(orderId)) as Record<string, unknown>;
+      console.log("initializePayment response:", init);
+      const nested =
+        init["data"] && typeof init["data"] === "object" ? (init["data"] as Record<string, unknown>) : init;
+      const reference = String(nested["reference"] ?? init["reference"] ?? "");
+      const amount = Number(nested["amount"] ?? init["amount"] ?? 0);
+      const email = String(nested["email"] ?? init["email"] ?? "");
+      const publicKey = String(nested["public_key"] ?? init["public_key"] ?? "");
+
+      if (!window.PaystackPop || !reference || !publicKey) {
+        throw new Error("Payment could not be started. Please try again.");
+      }
+
+      window.PaystackPop.setup({
+        key: publicKey,
+        email,
+        amount: amount * 100,
+        ref: reference,
+        currency: "NGN",
+        callback: (response) => {
+          verifyPayment(response.reference)
+            .then((result) => {
+              console.log("verifyPayment response:", result);
+              setPaymentStatus({ kind: "success", message: "Payment successful! Order confirmed." });
+              toast.success("Payment successful!", { description: "Your order is confirmed." });
+              queryClient.invalidateQueries({ queryKey: ["customerDashboard"] });
+            })
+            .catch((err: unknown) => {
+              const message = err instanceof Error ? err.message : "We could not verify your payment.";
+              setPaymentStatus({ kind: "error", message });
+              toast.error("Payment verification failed", { description: message });
+            });
+        },
+        onClose: () => {
+          setPaymentStatus({
+            kind: "error",
+            message: "Payment was not completed. You can pay later from your order.",
+          });
+          toast("Payment was not completed", { description: "You can pay later from your order." });
+        },
+      }).openIframe();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to initialize payment";
+      setPaymentStatus({ kind: "error", message });
+      toast.error("Payment could not be started", { description: message });
+    }
+  };
+
   const orderMutation = useMutation({
     mutationFn: async (negotiationId: number) => {
       return createOrder(negotiationId);
@@ -117,12 +195,16 @@ function NegotiatePage() {
           payload["order_ref"] ??
           "",
       );
-      setOrderResult({ ref });
+      const orderId = Number(source["id"] ?? payload["id"] ?? 0);
+      setOrderResult({ ref, id: orderId });
       setOrderError(null);
       toast.success("Order placed!", {
         description: ref ? `Reference: ${ref}` : "Your order was created successfully.",
       });
       queryClient.invalidateQueries({ queryKey: ["customerDashboard"] });
+      if (orderId) {
+        void startPayment(orderId);
+      }
     },
     onError: (err) => {
       setOrderError(err instanceof Error ? err.message : "Failed to create order");
@@ -262,6 +344,25 @@ function NegotiatePage() {
                 <p className="font-body-md text-body-md">
                   Reference: <span className="font-label-md">{orderResult.ref}</span>
                 </p>
+                {paymentStatus.kind === "pending" && (
+                  <p className="font-body-md text-body-md">Opening secure payment...</p>
+                )}
+                {paymentStatus.kind === "success" && (
+                  <p className="font-label-md text-body-md">{paymentStatus.message}</p>
+                )}
+                {paymentStatus.kind === "error" && (
+                  <div className="flex flex-col gap-sm">
+                    <p className="font-body-md text-body-md">{paymentStatus.message}</p>
+                    {orderResult.id ? (
+                      <button
+                        onClick={() => orderResult.id && void startPayment(orderResult.id)}
+                        className="h-12 px-6 rounded-2xl bg-primary text-on-primary font-label-md text-label-md self-start"
+                      >
+                        Pay now
+                      </button>
+                    ) : null}
+                  </div>
+                )}
                 <button
                   onClick={goToDashboard}
                   className="h-12 px-6 rounded-2xl bg-tertiary text-on-tertiary font-label-md text-label-md self-start"

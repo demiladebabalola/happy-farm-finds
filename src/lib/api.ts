@@ -239,6 +239,28 @@ export async function createOrder(negotiationId: number, quantity: number = 1) {
   return res.json();
 }
 
+export async function initializePayment(orderId: number) {
+  const res = await fetch(`${API_URL}/orders/${orderId}/payments/initialize`, {
+    method: "POST",
+    headers: authHeaders(),
+  });
+  if (!res.ok) {
+    await parseApiError(res, "Failed to initialize payment");
+  }
+  return res.json();
+}
+
+export async function verifyPayment(reference: string) {
+  const res = await fetch(`${API_URL}/payments/${reference}/verify`, {
+    method: "POST",
+    headers: authHeaders(),
+  });
+  if (!res.ok) {
+    await parseApiError(res, "Failed to verify payment");
+  }
+  return res.json();
+}
+
 function normalizeCustomerDashboard(data: unknown): CustomerDashboardData {
   if (typeof data !== "object" || data === null) return {};
   const d = data as Record<string, unknown>;
