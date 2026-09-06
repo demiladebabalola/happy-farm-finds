@@ -196,7 +196,11 @@ function NegotiatePage() {
           payload["order_ref"] ??
           "",
       );
-      const orderId = Number(source["id"] ?? payload["id"] ?? 0);
+      // Prefer the numeric "orderId" field the backend now returns; "id" is a
+      // string reference (e.g. "FD-8EFZNH") whose Number() is NaN.
+      const rawOrderId = source["orderId"] ?? payload["orderId"] ?? source["id"] ?? payload["id"];
+      const parsedOrderId = Number(rawOrderId ?? 0);
+      const orderId = Number.isFinite(parsedOrderId) ? parsedOrderId : 0;
       setOrderResult({ ref, id: orderId });
       setOrderError(null);
       toast.success("Order placed!", {
