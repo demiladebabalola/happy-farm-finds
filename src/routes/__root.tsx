@@ -109,6 +109,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
+    scripts: [{ src: "https://js.paystack.co/v1/inline.js" }],
   }),
 
   shellComponent: RootShell,
