@@ -166,6 +166,7 @@ function NegotiatePage() {
         },
       }).openIframe();
     } catch (err) {
+      console.error("initializePayment failed:", err);
       const message = err instanceof Error ? err.message : "Failed to initialize payment";
       setPaymentStatus({ kind: "error", message });
       toast.error("Payment could not be started", { description: message });
