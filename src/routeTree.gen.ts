@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BrowseRouteImport } from './routes/browse'
+import { Route as ListProduceRouteImport } from './routes/list-produce'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as DashboardCustomerRouteImport } from './routes/dashboard.customer'
 import { Route as DashboardFarmerRouteImport } from './routes/dashboard.farmer'
@@ -25,6 +26,11 @@ const IndexRoute = IndexRouteImport.update({
 const BrowseRoute = BrowseRouteImport.update({
   id: '/browse',
   path: '/browse',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ListProduceRoute = ListProduceRouteImport.update({
+  id: '/list-produce',
+  path: '/list-produce',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegisterRoute = RegisterRouteImport.update({
@@ -56,6 +62,7 @@ const ProductProductIdRoute = ProductProductIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/browse': typeof BrowseRoute
+  '/list-produce': typeof ListProduceRoute
   '/register': typeof RegisterRoute
   '/dashboard/customer': typeof DashboardCustomerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
@@ -65,6 +72,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/browse': typeof BrowseRoute
+  '/list-produce': typeof ListProduceRoute
   '/register': typeof RegisterRoute
   '/dashboard/customer': typeof DashboardCustomerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
@@ -75,6 +83,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/browse': typeof BrowseRoute
+  '/list-produce': typeof ListProduceRoute
   '/register': typeof RegisterRoute
   '/dashboard/customer': typeof DashboardCustomerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
@@ -86,6 +95,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/browse'
+    | '/list-produce'
     | '/register'
     | '/dashboard/customer'
     | '/dashboard/farmer'
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/browse'
+    | '/list-produce'
     | '/register'
     | '/dashboard/customer'
     | '/dashboard/farmer'
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/browse'
+    | '/list-produce'
     | '/register'
     | '/dashboard/customer'
     | '/dashboard/farmer'
@@ -114,6 +126,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BrowseRoute: typeof BrowseRoute
+  ListProduceRoute: typeof ListProduceRoute
   RegisterRoute: typeof RegisterRoute
   DashboardCustomerRoute: typeof DashboardCustomerRoute
   DashboardFarmerRoute: typeof DashboardFarmerRoute
@@ -135,6 +148,13 @@ declare module '@tanstack/react-router' {
       path: '/browse'
       fullPath: '/browse'
       preLoaderRoute: typeof BrowseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/list-produce': {
+      id: '/list-produce'
+      path: '/list-produce'
+      fullPath: '/list-produce'
+      preLoaderRoute: typeof ListProduceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/register': {
@@ -178,6 +198,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BrowseRoute: BrowseRoute,
+  ListProduceRoute: ListProduceRoute,
   RegisterRoute: RegisterRoute,
   DashboardCustomerRoute: DashboardCustomerRoute,
   DashboardFarmerRoute: DashboardFarmerRoute,

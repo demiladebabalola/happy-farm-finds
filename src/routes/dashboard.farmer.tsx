@@ -94,7 +94,7 @@ function FarmerDashboard() {
             <p className="font-label-md text-body-md truncate">{farm}</p>
           </div>
           <Link
-            to="/browse"
+            to="/list-produce"
             className="h-10 px-4 rounded-full bg-primary text-on-primary font-label-md text-label-md flex items-center gap-2"
           >
             <span className="material-symbols-outlined text-[18px]">add</span>
