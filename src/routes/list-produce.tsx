@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { createProduct } from "@/lib/api";
-import { IMG } from "@/lib/images";
 
 export const Route = createFileRoute("/list-produce")({
   head: () => ({
@@ -270,7 +269,6 @@ function ListProducePage() {
           </button>
 
           <p className="font-label-sm text-label-sm text-on-surface-variant text-center">
-            <img src={IMG.s6_1} alt="" className="hidden" />
             Your listing will be reviewed before it appears to buyers.
           </p>
         </form>
