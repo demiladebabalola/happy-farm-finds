@@ -1,7 +1,5 @@
 import { IMG } from "./images";
 import uguAsset from "@/assets/ugu-leaves.png.asset.json";
-import yamTubersAsset from "@/assets/yam-tubers.png.asset.json";
-import honeyAsset from "@/assets/honey-bottle.png.asset.json";
 
 
 export type Product = {
@@ -172,8 +170,8 @@ export const categories = [
   { label: "Ugu Leaves", image: IMG.s5_2 },
   { label: "Agbalumo", image: "/images/agbalumo.png" },
   { label: "Oils", image: IMG.s5_4 },
-  { label: "Tubers", image: yamTubersAsset.url },
-  { label: "Pantry", image: honeyAsset.url },
+  { label: "Tubers", image: "https://commons.wikimedia.org/wiki/Special:FilePath/Yam_Tubers_stacked_on_a_plastic_table_03.jpg" },
+  { label: "Pantry", image: "https://commons.wikimedia.org/wiki/Special:FilePath/Nigeria_beans.jpg" },
   { label: "Specials", image: IMG.s5_7 },
 ];
 
