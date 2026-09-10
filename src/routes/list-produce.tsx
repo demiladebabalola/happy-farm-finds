@@ -46,6 +46,8 @@ function ListProducePage() {
     setLoading(true);
     setError(null);
     try {
+      const description = String(form.get("description") ?? "");
+      const image = String(form.get("image") ?? "");
       const result = await createProduct({
         name: String(form.get("name") ?? ""),
         category,
@@ -53,8 +55,8 @@ function ListProducePage() {
         unit: String(form.get("unit") ?? ""),
         location: String(form.get("location") ?? ""),
         stock: String(form.get("stock") ?? ""),
-        description: String(form.get("description") ?? "") || undefined,
-        image: String(form.get("image") ?? "") || undefined,
+        ...(description ? { description } : {}),
+        ...(image ? { image } : {}),
       });
       console.log("createProduct response:", result);
       await queryClient.invalidateQueries({ queryKey: ["products"] });
