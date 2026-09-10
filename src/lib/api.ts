@@ -169,6 +169,27 @@ export async function registerUser(data: {
   return res.json();
 }
 
+export async function createProduct(data: {
+  name: string;
+  category: string;
+  price: number;
+  unit: string;
+  location: string;
+  stock: string;
+  description?: string;
+  image?: string;
+}) {
+  const res = await fetch(`${API_URL}/products`, {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    await parseApiError(res, "Failed to create product");
+  }
+  return res.json();
+}
+
 export async function loginUser(email: string, password: string) {
   const res = await fetch(`${API_URL}/login`, {
     method: "POST",
