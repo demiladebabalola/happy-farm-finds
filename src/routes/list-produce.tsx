@@ -66,6 +66,7 @@ function ListProducePage() {
         navigate({ to: "/dashboard/farmer" });
       }, 1200);
     } catch (err) {
+      console.error("createProduct failed:", err);
       setError(err instanceof Error ? err.message : "Failed to create product. Please try again.");
     } finally {
       setLoading(false);
