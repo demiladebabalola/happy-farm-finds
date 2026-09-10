@@ -35,7 +35,7 @@ const CATEGORIES = [
 function ListProducePage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [category, setCategory] = useState(CATEGORIES[0]);
+  const [category, setCategory] = useState<string>("Vegetables");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
