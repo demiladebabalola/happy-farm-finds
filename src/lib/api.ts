@@ -179,6 +179,7 @@ export async function createProduct(data: {
   stock: string;
   description?: string;
   image?: string;
+  min_price?: number | null;
 }) {
   const res = await fetch(`${API_URL}/products`, {
     method: "POST",
