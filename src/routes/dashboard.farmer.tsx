@@ -139,7 +139,7 @@ function FarmerDashboard() {
           <h2 className="font-headline-md text-headline-md-mobile mb-sm">Buyer offers awaiting reply</h2>
           <div className="flex flex-col gap-sm">
             {bids.map((bid) => {
-              const product = getProduct(bid.productId ?? "");
+              const product = findProduct(bid.productId);
               if (!product) return null;
               return (
                 <div
