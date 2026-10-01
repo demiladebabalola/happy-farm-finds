@@ -47,7 +47,14 @@ function FarmerDashboard() {
   const recentOrders = Array.isArray(data?.recentOrders) ? data.recentOrders : mock.recentOrders;
   const bids = Array.isArray(data?.bids) ? data.bids : mock.bids;
 
-  const myProducts = products.filter((product) => product.farmer === farm);
+  const { data: allProducts } = useQuery({
+    queryKey: ["products"],
+    queryFn: fetchProducts,
+  });
+  const productList: any[] = Array.isArray(allProducts) ? allProducts : [];
+  const myProducts = productList.filter((product) => product.farmer === farm);
+  const findProduct = (id: string | undefined) =>
+    productList.find((product) => String(product.id) === String(id));
 
   const statCards = [
     { label: "Products", value: String(stats.products), icon: "inventory_2" },
