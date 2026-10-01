@@ -63,7 +63,13 @@ function ProductPage() {
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
 
-  const related = products.filter((item) => item.id !== product.id).slice(0, 4);
+  const { data: allProducts } = useQuery({
+    queryKey: ["products"],
+    queryFn: fetchProducts,
+  });
+  const related = (Array.isArray(allProducts) ? allProducts : [])
+    .filter((item: any) => item.id !== product.id)
+    .slice(0, 4);
 
   return (
     <div className="bg-background text-on-surface min-h-screen pb-32 md:pb-xl">

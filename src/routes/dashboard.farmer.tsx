@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
-import { fetchFarmerDashboard } from "@/lib/api";
-import { farmerDashboard, getProduct, naira, products } from "@/lib/mock-data";
+import { fetchFarmerDashboard, fetchProducts } from "@/lib/api";
+import { farmerDashboard, naira } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/dashboard/farmer")({
   head: () => ({
