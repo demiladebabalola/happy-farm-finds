@@ -103,7 +103,7 @@ function ProductPage() {
             ) : null}
           </div>
           <div className="flex gap-sm">
-            {product.gallery.map((image, index) => (
+            {product.gallery.map((image: string, index: number) => (
               <button
                 key={image}
                 onClick={() => setActiveImage(index)}
