@@ -7,12 +7,13 @@ import {
   acceptOffer,
   createOrder,
   fetchNegotiation,
+  fetchProduct,
   initializePayment,
   sendChatMessage,
   sendOffer,
   verifyPayment,
 } from "@/lib/api";
-import { getProduct, naira } from "@/lib/mock-data";
+import { naira } from "@/lib/mock-data";
 
 type PaystackHandler = { openIframe: () => void };
 type PaystackSetupOptions = {
@@ -31,10 +32,13 @@ declare global {
 }
 
 export const Route = createFileRoute("/negotiate/$productId")({
-  loader: ({ params }) => {
-    const product = getProduct(params.productId);
-    if (!product) throw notFound();
-    return { product };
+  loader: async ({ params }) => {
+    try {
+      const product = await fetchProduct(params.productId);
+      return { product };
+    } catch {
+      throw notFound();
+    }
   },
   head: ({ loaderData }) => {
     if (!loaderData) {

@@ -1,13 +1,18 @@
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 
-import { getProduct, naira, products } from "@/lib/mock-data";
+import { fetchProduct, fetchProducts } from "@/lib/api";
+import { naira } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/product/$productId")({
-  loader: ({ params }) => {
-    const product = getProduct(params.productId);
-    if (!product) throw notFound();
-    return { product };
+  loader: async ({ params }) => {
+    try {
+      const product = await fetchProduct(params.productId);
+      return { product };
+    } catch {
+      throw notFound();
+    }
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
