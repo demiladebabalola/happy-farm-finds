@@ -48,6 +48,8 @@ function ListProducePage() {
     try {
       const description = String(form.get("description") ?? "");
       const image = String(form.get("image") ?? "");
+      const minPriceRaw = String(form.get("min_price") ?? "").trim();
+      const minPrice = minPriceRaw ? Math.trunc(Number(minPriceRaw)) : null;
       const result = await createProduct({
         name: String(form.get("name") ?? ""),
         category,
@@ -57,6 +59,7 @@ function ListProducePage() {
         stock: String(form.get("stock") ?? ""),
         ...(description ? { description } : {}),
         ...(image ? { image } : {}),
+        ...(minPrice != null && !Number.isNaN(minPrice) ? { min_price: minPrice } : {}),
       });
       console.log("createProduct response:", result);
       await queryClient.invalidateQueries({ queryKey: ["products"] });
@@ -192,6 +195,27 @@ function ListProducePage() {
                 required
               />
             </div>
+          </div>
+
+          <div className={fieldGroup}>
+            <label className={labelClass} htmlFor="min_price">
+              Minimum Price (₦) <span className="text-on-surface-variant">(optional)</span>
+            </label>
+            <div className="relative flex items-center">
+              <span className={icon}>trending_down</span>
+              <input
+                className={field.replace("px-4", "pl-10 pr-4")}
+                id="min_price"
+                name="min_price"
+                min="0"
+                step="1"
+                placeholder="e.g. 1200 (optional floor for negotiation)"
+                type="number"
+              />
+            </div>
+            <p className="font-label-sm text-label-sm text-on-surface-variant ml-1">
+              If set, automated counter-offers will never go below this price.
+            </p>
           </div>
 
           <div className={fieldGroup}>
