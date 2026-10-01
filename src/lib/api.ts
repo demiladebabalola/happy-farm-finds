@@ -151,6 +151,16 @@ export async function fetchProducts() {
   return res.json();
 }
 
+export async function fetchProduct(slug: string) {
+  const res = await fetch(`${API_URL}/products/${slug}`, {
+    headers: {
+      "ngrok-skip-browser-warning": "true",
+    },
+  });
+  if (!res.ok) throw new Error("Failed to fetch product");
+  return res.json();
+}
+
 export async function registerUser(data: {
   name: string;
   email: string;

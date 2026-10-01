@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
-import { fetchFarmerDashboard } from "@/lib/api";
-import { farmerDashboard, getProduct, naira, products } from "@/lib/mock-data";
+import { fetchFarmerDashboard, fetchProducts } from "@/lib/api";
+import { farmerDashboard, naira } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/dashboard/farmer")({
   head: () => ({
@@ -47,7 +47,14 @@ function FarmerDashboard() {
   const recentOrders = Array.isArray(data?.recentOrders) ? data.recentOrders : mock.recentOrders;
   const bids = Array.isArray(data?.bids) ? data.bids : mock.bids;
 
-  const myProducts = products.filter((product) => product.farmer === farm);
+  const { data: allProducts } = useQuery({
+    queryKey: ["products"],
+    queryFn: fetchProducts,
+  });
+  const productList: any[] = Array.isArray(allProducts) ? allProducts : [];
+  const myProducts = productList.filter((product) => product.farmer === farm);
+  const findProduct = (id: string | undefined) =>
+    productList.find((product) => String(product.id) === String(id));
 
   const statCards = [
     { label: "Products", value: String(stats.products), icon: "inventory_2" },
@@ -132,7 +139,7 @@ function FarmerDashboard() {
           <h2 className="font-headline-md text-headline-md-mobile mb-sm">Buyer offers awaiting reply</h2>
           <div className="flex flex-col gap-sm">
             {bids.map((bid) => {
-              const product = getProduct(bid.productId ?? "");
+              const product = findProduct(bid.productId);
               if (!product) return null;
               return (
                 <div
